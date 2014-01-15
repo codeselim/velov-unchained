@@ -1,14 +1,15 @@
+#This file prepares the view variables
 import web
-import db
+import model
 import config
 
 t_globals = dict(
-  datestr=web.datestr,
+  datestr=web.datestr, 
 )
 render = web.template.render('templates/', cache=config.cache, 
     globals=t_globals)
 render._keywords['globals']['render'] = render
 
 def listing(**k):
-    l = db.listing(**k)
+    l = model.listing(**k)
     return render.listing(l)
