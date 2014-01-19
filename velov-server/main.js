@@ -1,2 +1,3 @@
-server = require('server')
+server = require('./server')
 
+server.start(null, 3000)
