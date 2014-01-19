@@ -7,6 +7,14 @@ var events = require('events');
 var net = require("net");
 var FRAME_SEPARATOR = "\n"
 var DATA_SEPARATOR = "\t"
+var sha1sum = require('crypto').createHash('sha1')
+var VELOV_CONNECTION_PORT = 5000
+var VELOV_MESSAGE_FAILED_RETRY_TIME = 10000 // milliseconds
+
+var sha1 = function (string) {
+	sha1sum.update(string)
+	return sha1sum.digest('hex')
+}
 
 var decode = function (frame) {
 	return frame
@@ -17,12 +25,50 @@ var checksum = function (data) {
 }
 
 var check_checksum = function (frame) {
-	data_end_pos = 
+	var data_end_pos = frame.indexOf(DATA_SEPARATOR)
+	var data = frame.substr(0, data_end_pos)
+	var data_checksum = frame.substr(data_end_pos + data_end_pos.length, frame.length)
+	return (checksum(data) === data_checksum)
+}
+
+var create_frame_from_data = function (data) {
+	return "HLO" // TODO actually implement this
+}
+
+var message_velov = function (velov, data, callback, tries_count) {
+	var sock = new net.Socket()
+
+	var message = create_frame_from_data(data)
+	
+	// TODO: Add some SSL security to this connection...
+	sock.connect(VELOV_CONNECTION_PORT, data.ip, function () { 
+		console.log('message_velov: Connection to velov ' + velov + ' established, going to send: ', message)
+		sock.write(message, null, function () {
+			sock.end()
+			sock.destroy()
+			console.log('message_velov: Data sent to velov, disconnecting.')
+			console.log("Exiting in message_velov() callback")
+		})
+		// The following code was originally in the write() callback BUT. As the data is less than the kernel io buffer, it seems there a kind of a bug in nodejs and the callback s called extremely long after, not to say never
+		// So just consider the data was written: 
+		if (null != callback) {
+			callback()
+		};
+	})
+
+	sock.on("error", function () { 
+		console.error("message_velov:", new Date().toString() + "Could not send message " + message + "to velov " + velov + ", trying again in 10 seconds."); 
+		if (tries_count == null) {
+			tries_count = 1
+		};
+		setTimeout(function () {
+			message_velov(velov, data, callback, tries_count+1)
+		}, VELOV_MESSAGE_FAILED_RETRY_TIME)
+	})
 }
 
 function start (db, port) {
 	var server = net.createServer(function(stream) {
-
 		stream.setTimeout(0);
 		stream.setEncoding("utf8");
 
@@ -55,6 +101,12 @@ function start (db, port) {
 	});
 
 	server.listen(port);
+
+	//TODO: Remove this test code:
+	setInterval(function () {
+		message_velov(0, {ip: '127.0.0.1'}, null)
+	}, 1000)
+
 }
 
 exports.start = start
