@@ -2,13 +2,22 @@
 
 //* Server that deals with the data from the velovs
 
-
+// Note: Network protocol is defined here https://docs.google.com/document/d/1ruhZYn532nGK_tueSa5HPL_cqe6Hj630zpdrcCcXIH4/edit#
 var events = require('events');
 var net = require("net");
 var FRAME_SEPARATOR = "\n"
+var DATA_SEPARATOR = "\t"
 
 var decode = function (frame) {
 	return frame
+}
+
+var checksum = function (data) {
+	return sha1(data)
+}
+
+var check_checksum = function (frame) {
+	data_end_pos = 
 }
 
 function start (db, port) {
@@ -35,7 +44,7 @@ function start (db, port) {
 				buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
 				var frame_data = decode(frame)
 			};
-			// console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
+			console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
 		});
 
 		stream.addListener("end", function(){
