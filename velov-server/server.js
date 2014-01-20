@@ -12,6 +12,16 @@ var VELOV_CONNECTION_PORT = 5000
 var VELOV_MESSAGE_FAILED_RETRY_TIME = 10000 // milliseconds
 var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
 
+var TABLE_NAMES = { // shortens the code, and avoids spelldraws, in short, THIS IS [SPARTA?] CONSTANTS!
+	  'loc_histo': "velov_location_history"
+	, 't': "velov_tasks"
+	, 'tt': "task_types"
+}
+
+var DBG = true
+
+var t = TABLE_NAMES // handy shortcut, for even shorter use
+
 var sha1 = function (string) {
 	sha1sum.update(string)
 	return sha1sum.digest('hex')
@@ -19,14 +29,25 @@ var sha1 = function (string) {
 
 var decode = function (frame) {
 	var data = get_data_from_frame(frame)
+
+	if (DBG) {
+		console.log("decode(), data=", data)
+	};
+
 	var type = get_type_from_data(data)
 	var cmd = get_cmd_from_data(data)
 	var params = get_params_from_data(data)
-	return {
+	var result = {
 		  'type': type
 		, 'cmd': cmd
 		, 'params': params
 	}
+
+	if (DBG) {
+		console.log("decode(),frame=", frame, "result=", result)
+	};
+
+	return result
 }
 
 /**
@@ -111,15 +132,18 @@ var message_velov = function (velov, data, callback, tries_count) {
 	})
 }
 
-var action_localization = function (frame_data) {
-	frame_data.params
+var action_localization = function (frame_data, db) {
+	db.insert_query(t['loc_histo'], ['velov_id', 'lat', 'long'], [1, 42, 43], function (err, result) {
+		console.log("Query has been executed.", err)
+	})
 }
+
 var frame_actions = {
 	"LOC": action_localization
 }
 
-var frame_action = function (frame_data) {
-	frame_actions[frame_data.frame_type](frame_data)
+var frame_action = function (frame_data, db) {
+	frame_actions[frame_data.type](frame_data, db)
 }
 
 function start (db, port) {
@@ -144,7 +168,7 @@ function start (db, port) {
 				var frame = buffer.substr(0, pos)
 				buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
 				var frame_data = decode(frame)
-				frame_action(frame_data)
+				frame_action(frame_data, db)
 			};
 			console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
 		});
@@ -159,9 +183,9 @@ function start (db, port) {
 	server.listen(port);
 
 	//TODO: Remove this test code:
-	setInterval(function () {
-		message_velov(0, {ip: '127.0.0.1'}, null)
-	}, 1000)
+	// setInterval(function () {
+	// 	message_velov(0, {ip: '127.0.0.1'}, null)
+	// }, 1000)
 
 }
 

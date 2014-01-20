@@ -59,61 +59,70 @@ ALTER TABLE public.task_types_id_seq OWNER TO velovunchained;
 --
 
 ALTER SEQUENCE task_types_id_seq OWNED BY task_types.id;
+ALTER TABLE ONLY task_types ALTER COLUMN id SET DEFAULT nextval('task_types_id_seq'::regclass);
 
-
---
--- Name: velov_tasks; Type: TABLE; Schema: public; Owner: velovunchained; Tablespace: 
---
-
+-- --------------------------------- ---------------------------------
 CREATE TABLE velov_tasks (
     id integer NOT NULL,
     type integer NOT NULL
 );
-
-
 ALTER TABLE public.velov_tasks OWNER TO velovunchained;
-
---
--- Name: velov_tasks_id_seq; Type: SEQUENCE; Schema: public; Owner: velovunchained
---
-
 CREATE SEQUENCE velov_tasks_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
-
-ALTER TABLE ONLY task_types
-    ADD CONSTRAINT task_types_pk PRIMARY KEY (id);
-
---
--- Name: tasks_pk; Type: CONSTRAINT; Schema: public; Owner: velovunchained; Tablespace: 
---
-
-ALTER TABLE ONLY velov_tasks
-    ADD CONSTRAINT tasks_pk PRIMARY KEY (id);
-
-
+ALTER TABLE ONLY task_types ADD CONSTRAINT task_types_pk PRIMARY KEY (id);
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT tasks_pk PRIMARY KEY (id);
 ALTER TABLE public.velov_tasks_id_seq OWNER TO velovunchained;
-
---
--- Name: velov_tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: velovunchained
---
-
 ALTER SEQUENCE velov_tasks_id_seq OWNED BY velov_tasks.id;
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_type_fk FOREIGN KEY (type) REFERENCES task_types(id);
+ALTER TABLE ONLY velov_tasks ALTER COLUMN id SET DEFAULT nextval('velov_tasks_id_seq'::regclass);
 
+-- --------------------------------- ---------------------------------
 
---
--- Name: task_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: velovunchained
---
+CREATE TABLE velovs (
+    id integer NOT NULL
+);
+ALTER TABLE public.velovs OWNER TO velovunchained;
+CREATE SEQUENCE velovs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER SEQUENCE velovs_id_seq OWNED BY velovs.id;
+ALTER TABLE public.velovs_id_seq OWNER TO velovunchained;
+ALTER TABLE ONLY velovs ADD CONSTRAINT velovs_pk PRIMARY KEY (id);
+ALTER TABLE ONLY velovs ALTER COLUMN id SET DEFAULT nextval('velovs_id_seq'::regclass);
 
-ALTER TABLE ONLY velov_tasks
-    ADD CONSTRAINT task_type_fk FOREIGN KEY (type) REFERENCES task_types(id);
+-- --------------------------------- ---------------------------------
 
+CREATE TABLE velov_location_history (
+    id integer NOT NULL,
+    velov_id integer NOT NULL,
+    lat double precision NOT NULL,
+    long double precision NOT NULL
+);
+ALTER TABLE public.velov_location_history OWNER TO velovunchained;
+CREATE SEQUENCE velov_location_history_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER SEQUENCE velov_location_history_id_seq OWNED BY velov_location_history.id;
+ALTER TABLE public.velov_location_history_id_seq OWNER TO velovunchained;
+ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_location_history_pk PRIMARY KEY (id);
+ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_loc_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
+ALTER TABLE ONLY velov_location_history ALTER COLUMN id SET DEFAULT nextval('velov_location_history_id_seq'::regclass);
 
+-- --------------------------------- ---------------------------------
+
+-- --
+-- -- Name: id; Type: DEFAULT; Schema: public; Owner: velovunchained
+-- --
 
 
 
@@ -121,22 +130,14 @@ ALTER TABLE ONLY velov_tasks
 -- -- Name: id; Type: DEFAULT; Schema: public; Owner: velovunchained
 -- --
 
--- ALTER TABLE ONLY task_types ALTER COLUMN id SET DEFAULT nextval('task_types_id_seq'::regclass);
-
-
--- --
--- -- Name: id; Type: DEFAULT; Schema: public; Owner: velovunchained
--- --
-
--- ALTER TABLE ONLY velov_tasks ALTER COLUMN id SET DEFAULT nextval('velov_tasks_id_seq'::regclass);
 
 --
 -- Data for Name: task_types; Type: TABLE DATA; Schema: public; Owner: velovunchained
 --
 
 -- COPY task_types (id, name) FROM stdin;
--- 1	Hey       
--- 2	Hey       
+-- 1    Hey       
+-- 2    Hey       
 -- \.
 
 

@@ -1,3 +1,4 @@
 server = require('./server')
+pgsql = require('./pgsql')
 
-server.start(null, 3000)
+server.start(pgsql, 3000)
