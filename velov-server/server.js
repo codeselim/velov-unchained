@@ -32,7 +32,7 @@ var check_checksum = function (frame) {
 }
 
 var create_frame_from_data = function (data) {
-	return "HLO" // TODO actually implement this
+	return "HLO\n" // TODO actually implement this
 }
 
 var message_velov = function (velov, data, callback, tries_count) {
