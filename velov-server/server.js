@@ -135,18 +135,29 @@ var message_velov = function (velov, data, callback, tries_count) {
 }
 
 var action_localization = function (frame_data, db) {
-	var tile_index = get_tile_from_gps_coords(frame_data.params[1], frame_data.params[2])
-	db.insert_query(t['loc_histo'], ['velov_id', 'tile_index', 'lat', 'long'], [frame_data.params[0], tile_index, frame_data.params[1], frame_data.params[2]], function (err, result) {
+	var tile_index = get_tile_from_gps_coords(frame_data.params[2], frame_data.params[3])
+	db.insert_query(t['loc_histo'], ['velov_id', 'time', 'tile_index', 'lat', 'long'], [frame_data.params[0], frame_data.params[1], tile_index, frame_data.params[1], frame_data.params[2]], function (err, result) {
+		console.log("Query has been executed.", err)
+	})
+}
+
+var action_change_state = function (frame_data, db) {
+	db.insert_query(t['sh'], ['velov_id', 'state_id', 'time'], [frame_data.params[0], frame_data.params[2], frame_data.params[1]], function (err, result) {
 		console.log("Query has been executed.", err)
 	})
 }
 
 var frame_actions = {
-	"LOC": action_localization
+	  "LOC": action_localization
+	, "CHG": action_change_state
 }
 
 var frame_action = function (frame_data, db) {
-	frame_actions[frame_data.type](frame_data, db)
+	if (!(frame_data.type in frame_actions)) {
+		console.error("Received command of type ", frame_data.type, ", not recognized, doing nothing.")
+		return false
+	}
+	return frame_actions[frame_data.type](frame_data, db)
 }
 
 function start (db, port) {

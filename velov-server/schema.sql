@@ -84,6 +84,7 @@ ALTER TABLE ONLY velovs ALTER COLUMN id SET DEFAULT nextval('velovs_id_seq'::reg
 CREATE TABLE velov_location_history (
     id integer NOT NULL,
     velov_id integer NOT NULL,
+    time bigint NOT NULL,
     tile_index integer NOT NULL,
     lat double precision NOT NULL,
     long double precision NOT NULL
@@ -100,6 +101,45 @@ ALTER SEQUENCE velov_location_history_id_seq OWNED BY velov_location_history.id;
 ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_location_history_pk PRIMARY KEY (id);
 ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_loc_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
 ALTER TABLE ONLY velov_location_history ALTER COLUMN id SET DEFAULT nextval('velov_location_history_id_seq'::regclass);
+
+-- --------------------------------- ---------------------------------
+
+CREATE TABLE states (
+    id integer NOT NULL
+);
+ALTER TABLE public.states OWNER TO velovunchained;
+CREATE SEQUENCE states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.states_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE states_id_seq OWNED BY states.id;
+ALTER TABLE ONLY states ADD CONSTRAINT states_pk PRIMARY KEY (id);
+ALTER TABLE ONLY states ALTER COLUMN id SET DEFAULT nextval('states_id_seq'::regclass);
+
+-- --------------------------------- ---------------------------------
+
+CREATE TABLE velov_state_history (
+    id integer NOT NULL,
+    velov_id integer NOT NULL,
+    time bigint NOT NULL,
+    state_id integer NOT NULL
+);
+ALTER TABLE public.velov_state_history OWNER TO velovunchained;
+CREATE SEQUENCE velov_state_history_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.velov_state_history_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE velov_state_history_id_seq OWNED BY velov_state_history.id;
+ALTER TABLE ONLY velov_state_history ADD CONSTRAINT velov_state_history_pk PRIMARY KEY (id);
+ALTER TABLE ONLY velov_state_history ADD CONSTRAINT velov_state_history_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
+ALTER TABLE ONLY velov_state_history ADD CONSTRAINT velov_state_history_state_id_fk FOREIGN KEY (state_id) REFERENCES states(id);
+ALTER TABLE ONLY velov_state_history ALTER COLUMN id SET DEFAULT nextval('velov_state_history_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
 
