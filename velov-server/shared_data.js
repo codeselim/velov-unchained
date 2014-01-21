@@ -9,7 +9,7 @@ var TABLE_NAMES = { // shortens the code, and avoids spelldraws, in short, THIS 
 }
 
 var TASK_STATES_CODES = {
-	  'todo': 1,
+	  'todo': 1
 	, 'inprogress': 2
 	, 'success': 3
 	, 'failure': 4
