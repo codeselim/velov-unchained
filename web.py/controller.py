@@ -11,7 +11,9 @@ urls = (
 
 class index:
     def GET(self):
-        return render.base(view.listing(), "title selim")
+        #return render.base(view.listing(), "title selim")
+        name ='anything now'
+        return render.index(name)
 
 class test:
 	def GET(self):
