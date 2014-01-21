@@ -10,8 +10,12 @@ urls = (
 )
 
 class index:
-    def GET(self):
-        return render.base(view.listing(), "title selim")
+	def GET(self):
+		return render.index(None)
+	def POST(self):
+		#TODO check couple login/pwd
+		util = "Charlotte"
+		return render.index(util)
 
 class test:
 	def GET(self):

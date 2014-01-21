@@ -1,4 +1,4 @@
-$def with (name)
+$def with (util)
 <!DOCTYPE html>
 <html>
 <head>
@@ -156,11 +156,18 @@ $def with (name)
 		<section class="top-bar-section">
 			<!-- Right Nav Section -->
 			<ul class="4-large columns right">
+				$if util:
+					<li class="name">
+						<a href="#">Bonjour $util</a>
+					</li>
 				<li class="has-dropdown">
-					<a href="#" class="button">Connexion</a>
+					$if util:
+						<a href="#" class="button">Déconnexion</a>
+					$else:
+						<a href="#" class="button">Connexion</a>
 					<ul class="dropdown">
 						<li>
-							<form>
+							<form method="post" action="#">
 								<input type="text" placeholder="Login" />
 								<input type="password" placeholder="Password" />
 								<input type="submit" value="Se connecter">
