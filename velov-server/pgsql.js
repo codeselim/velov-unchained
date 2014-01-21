@@ -10,7 +10,10 @@ client.connect()
 var DBG = true
 
 var text_query = function (query, callback) {
-	client.query(query_str, [], callback)
+	if (DBG) {
+		console.log("DB::Issuing query:", query)
+	};
+	client.query(query, [], callback)
 }
 
 var insert_query = function (table_name, columns, values, callback) {
@@ -64,7 +67,7 @@ var get_where_clause = function (columns, values, operator) {
 	}
 	var comma = ''
 	for (var i = 0; i < values.length; i++) {
-		values_params += comma + columns[i] + "=$" + i
+		values_params += comma + columns[i] + "=$" + (i+1)
 		comma = operator
 	};
 	return values_params
