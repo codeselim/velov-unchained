@@ -11,14 +11,12 @@ var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
 var FRAME_SEPARATOR = "\n"
 var DATA_SEPARATOR = "\t"
 var sha1sum = require('crypto').createHash('sha1')
-var VELOV_CONNECTION_PORT = 5000
-var VELOV_MESSAGE_FAILED_RETRY_TIME = 10000 // milliseconds
 var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
 var STATES_CODES = {}
 
 var DBG = true
-
-var t = TABLE_NAMES // handy shortcut, for even shorter use
+var sd = require('./shared_data')
+var t = sd.TABLE_NAMES // handy shortcut, for even shorter use
 
 var sha1 = function (string) {
 	sha1sum.update(string)
@@ -92,42 +90,6 @@ var check_checksum = function (frame) {
 	var data = get_data_from_frame(frame)
 	var data_checksum = get_checksum_from_frame(frame)
 	return (checksum(data) === data_checksum)
-}
-
-var create_frame_from_data = function (data) {
-	return "HLO\n" // TODO actually implement this
-}
-
-var message_velov = function (velov, data, callback, tries_count) {
-	var sock = new net.Socket()
-
-	var message = create_frame_from_data(data)
-	
-	// TODO: Add some SSL security to this connection...
-	sock.connect(VELOV_CONNECTION_PORT, data.ip, function () { 
-		console.log('message_velov: Connection to velov ' + velov + ' established, going to send: ', message)
-		sock.write(message, null, function () {
-			sock.end()
-			sock.destroy()
-			console.log('message_velov: Data sent to velov, disconnecting.')
-			console.log("Exiting in message_velov() callback")
-		})
-		// The following code was originally in the write() callback BUT. As the data is less than the kernel io buffer, it seems there a kind of a bug in nodejs and the callback s called extremely long after, not to say never
-		// So just consider the data was written: 
-		if (null != callback) {
-			callback()
-		};
-	})
-
-	sock.on("error", function () { 
-		console.error("message_velov:", new Date().toString() + "Could not send message " + message + "to velov " + velov + ", trying again in 10 seconds."); 
-		if (tries_count == null) {
-			tries_count = 1
-		};
-		setTimeout(function () {
-			message_velov(velov, data, callback, tries_count+1)
-		}, VELOV_MESSAGE_FAILED_RETRY_TIME)
-	})
 }
 
 var action_localization = function (frame_data, db) {
@@ -205,7 +167,7 @@ function start (db, port) {
 
 	setInterval(function () {
 		tasks.check_for_tasks(db)
-	}, 500);
+	}, 5000);
 
 	//TODO: Remove this test code:
 	// setInterval(function () {
