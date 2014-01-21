@@ -3,33 +3,74 @@
 var sd = require('./shared_data')
 var t = sd.TABLE_NAMES
 var TASK_STATES_CODES = sd.TASK_STATES_CODES
+var netw = require('./network')
 var check_for_tasks = function (db) {
-	db.select_query(t['t'], ['*'], ['status'], [TASK_STATES_CODES['todo']], function (err, result) {
+	db.select_query(t['t'], ['*'], ['task_state_id'], [TASK_STATES_CODES['todo']], null, function (err, result) {
 		
 		if (err) {
 			console.error("Could not retrieve list of todo tasks.", err)
+		} else {
+			console.log("The following task were retrieved and have to be processed", result)
+		}
+
+		if (!result.rows.length) {
+			return // Nothing to do
 		};
 
 		var ids = ""
 		var comma = ""
-		for (var i = 0; i < result.row.length; i++) {
-			ids += comma + result.row[i].id
+		for (var i = 0; i < result.rows.length; i++) {
+			ids += comma + result.rows[i].id
 			comma = ","
 		};
-		db.text_query('UPDATE ' + t['t'] + "SET status = '" + TASK_STATES_CODES['inprogress'] + "' WHERE id IN(" + ids + ")" , function (err2, result2) {
-			if (err2) {
-				console.error("Something went wrong when trying to set as pending, tasks that were for current run.", err2, result2)
-			};
-			process_tasks(result2)
+		db.text_query('UPDATE ' + t['t'] + " SET task_state_id = '" + TASK_STATES_CODES['inprogress'] + "' WHERE id IN(" + ids + ")" , 
+			function (err2, result2) {
+				if (err2) {
+					console.error("Something went wrong when trying to set as pending, tasks that were for current run.", err2, result2)
+				};
+				process_tasks(result)
 		})
 	})
 }
 
 var process_tasks = function (tasks_from_db) {
-	for (var i = 0; i < tasks_from_db.row.length; i++) {
-		switch (tasks_from_db.row[i].type) {
+	for (var i = 0; i < tasks_from_db.rows.length; i++) {
+		switch (tasks_from_db.rows[i].type) {
 			case 1:// Change state to unlockable
-				//TODO
+				netw.message_velov(
+					1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
+					{
+						'ip': '127.0.0.1',
+						'message': "CHG 1"
+					},
+					function () {
+						console.log("Message sent to velov.")
+					}
+				)
+				break;
+			case 2:// Change state to available
+				netw.message_velov(
+					1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
+					{
+						'ip': '127.0.0.1',
+						'message': "CHG 2"
+					},
+					function () {
+						console.log("Message sent to velov.")
+					}
+				)
+				break;
+			case 3:// Change state to NOT available
+				netw.message_velov(
+					1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
+					{
+						'ip': '127.0.0.1',
+						'message': "CHG 3"
+					},
+					function () {
+						console.log("Message sent to velov.")
+					}
+				)
 				break;
 		}
 	};
