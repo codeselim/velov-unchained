@@ -136,7 +136,7 @@ var message_velov = function (velov, data, callback, tries_count) {
 
 var action_localization = function (frame_data, db) {
 	var tile_index = get_tile_from_gps_coords(frame_data.params[1], frame_data.params[2])
-	db.insert_query(t['loc_histo'], ['velov_id', 'tile_index', 'lat', 'long'], [frame_data.params[0], frame_data.params[1], frame_data.params[2]], function (err, result) {
+	db.insert_query(t['loc_histo'], ['velov_id', 'tile_index', 'lat', 'long'], [frame_data.params[0], tile_index, frame_data.params[1], frame_data.params[2]], function (err, result) {
 		console.log("Query has been executed.", err)
 	})
 }
