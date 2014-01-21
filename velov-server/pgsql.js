@@ -9,6 +9,10 @@ client.connect()
 
 var DBG = true
 
+var text_query = function (query, callback) {
+	client.query(query_str, [], callback)
+}
+
 var insert_query = function (table_name, columns, values, callback) {
 	var values_params = ""
 	var comma = ''
@@ -36,7 +40,7 @@ var select_query = function (table_name, columns, columns_where, values_where, o
 	client.query(query_str, values_where , callback)
 }
 
-var update_query = function (table_name, columns, values, callback) {
+var update_query = function (table_name, columns, columns_where, values_where, operator_where, callback) {
 	var values_params = []
 	var comma = ''
 	for (var i = 0; i < values.length; i++) {
@@ -71,3 +75,4 @@ exports.insert_query = insert_query
 exports.update_query = update_query
 exports.delete_query = delete_query
 exports.select_query = select_query
+exports.text_query = text_query

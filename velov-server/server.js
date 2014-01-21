@@ -6,6 +6,7 @@
 var events = require('events');
 var net = require("net");
 var gps_utils = require("./gps_utils");
+var tasks = require("./tasks");
 var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
 var FRAME_SEPARATOR = "\n"
 var DATA_SEPARATOR = "\t"
@@ -14,14 +15,6 @@ var VELOV_CONNECTION_PORT = 5000
 var VELOV_MESSAGE_FAILED_RETRY_TIME = 10000 // milliseconds
 var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
 var STATES_CODES = {}
-
-var TABLE_NAMES = { // shortens the code, and avoids spelldraws, in short, THIS IS [SPARTA?] CONSTANTS!
-	  'loc_histo': "velov_location_history"
-	, 't': "velov_tasks"
-	, 'tt': "task_types"
-	, 'sh': "velov_state_history"
-	, 's': "states"
-}
 
 var DBG = true
 
@@ -209,6 +202,10 @@ function start (db, port) {
 
 		server.listen(port);
 	})
+
+	setInterval(function () {
+		tasks.check_for_tasks(db)
+	}, 500);
 
 	//TODO: Remove this test code:
 	// setInterval(function () {
