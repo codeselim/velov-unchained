@@ -5,6 +5,8 @@
 // Note: Network protocol is defined here https://docs.google.com/document/d/1ruhZYn532nGK_tueSa5HPL_cqe6Hj630zpdrcCcXIH4/edit#
 var events = require('events');
 var net = require("net");
+var gps_utils = require("./gps_utils");
+var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
 var FRAME_SEPARATOR = "\n"
 var DATA_SEPARATOR = "\t"
 var sha1sum = require('crypto').createHash('sha1')
