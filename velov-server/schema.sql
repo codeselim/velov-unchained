@@ -102,6 +102,7 @@ ALTER TABLE ONLY velovs ALTER COLUMN id SET DEFAULT nextval('velovs_id_seq'::reg
 CREATE TABLE velov_location_history (
     id integer NOT NULL,
     velov_id integer NOT NULL,
+    tile_index integer NOT NULL,
     lat double precision NOT NULL,
     long double precision NOT NULL
 );
