@@ -32,6 +32,23 @@ function test_tile_gps () {
 	if (tile_index != expected) {
 		console.error("Error, the returned tile should have been", expected, "but was ", tile_index)
 	};
+	var lat = 45.8 - 0.095
+	var long = 4.77 + 0.095
+	var tile_index = gps_utils.get_tile_from_gps_coords(lat, long)
+	var expected = 99
+
+	if (tile_index != expected) {
+		console.error("Error, the returned tile should have been", expected, "but was ", tile_index)
+	};
+
+	var lat = 45.8 - 0.105
+	var long = 4.77 + 0.095
+	var tile_index = gps_utils.get_tile_from_gps_coords(lat, long)
+	var expected = -1 // -1 is when there is an error, we should have an error here as we are out of range
+
+	if (tile_index != expected) {
+		console.error("Error, the returned tile should have been", expected, "but was ", tile_index)
+	};
 
 }
 
