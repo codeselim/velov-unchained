@@ -1,0 +1,3 @@
+top-left: lat=45.8 ; long=4.77
+
+bottom right: lat=45.7 ; long=4.87

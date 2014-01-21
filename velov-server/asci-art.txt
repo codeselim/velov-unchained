@@ -1,0 +1,26 @@
+lat, long
+
+tile_height = 0.01
+tile_width = 0.01
+grid_width = 10
+O_lat = 45.8
+O_long = 4.77
+
+lat_delta = lat - O_lat
+long_delta = long - O_long
+
+row = lat_delta // tile_height
+col = long_delta // tile_width
+
+index = row * grid_width + col
+
+<------9 ------->
+^	O x x x x x x x x 
+|	x x x x x x x x x 
+|	x x x x x x x x x 
+|	x x x x x x x x x 
+9	x x x x x x x x x 
+|	x x x x x x x x x 
+|	x x x x x x x x x 
+|	x x x x x x x x x 
+v	x x x x x x x x x 
