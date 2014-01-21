@@ -105,7 +105,9 @@ ALTER TABLE ONLY velov_location_history ALTER COLUMN id SET DEFAULT nextval('vel
 -- --------------------------------- ---------------------------------
 
 CREATE TABLE states (
-    id integer NOT NULL
+    id integer NOT NULL,
+    codename char(3) NOT NULL,
+    name varchar(100) NOT NULL
 );
 ALTER TABLE public.states OWNER TO velovunchained;
 CREATE SEQUENCE states_id_seq

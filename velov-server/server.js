@@ -13,11 +13,14 @@ var sha1sum = require('crypto').createHash('sha1')
 var VELOV_CONNECTION_PORT = 5000
 var VELOV_MESSAGE_FAILED_RETRY_TIME = 10000 // milliseconds
 var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
+var STATES_CODES = {}
 
 var TABLE_NAMES = { // shortens the code, and avoids spelldraws, in short, THIS IS [SPARTA?] CONSTANTS!
 	  'loc_histo': "velov_location_history"
 	, 't': "velov_tasks"
 	, 'tt': "task_types"
+	, 'sh': "velov_state_history"
+	, 's': "states"
 }
 
 var DBG = true
@@ -136,13 +139,14 @@ var message_velov = function (velov, data, callback, tries_count) {
 
 var action_localization = function (frame_data, db) {
 	var tile_index = get_tile_from_gps_coords(frame_data.params[2], frame_data.params[3])
+	db.select_query
 	db.insert_query(t['loc_histo'], ['velov_id', 'time', 'tile_index', 'lat', 'long'], [frame_data.params[0], frame_data.params[1], tile_index, frame_data.params[1], frame_data.params[2]], function (err, result) {
 		console.log("Query has been executed.", err)
 	})
 }
 
 var action_change_state = function (frame_data, db) {
-	db.insert_query(t['sh'], ['velov_id', 'state_id', 'time'], [frame_data.params[0], frame_data.params[2], frame_data.params[1]], function (err, result) {
+	db.insert_query(t['sh'], ['velov_id', 'state_id', 'time'], [frame_data.params[0], STATES_CODES[frame_data.params[2]], frame_data.params[1]], function (err, result) {
 		console.log("Query has been executed.", err)
 	})
 }
@@ -161,44 +165,54 @@ var frame_action = function (frame_data, db) {
 }
 
 function start (db, port) {
-	var server = net.createServer(function(stream) {
-		stream.setTimeout(0);
-		stream.setEncoding("utf8");
+	db.select_query(t['s'], ['id', 'codename'], null, null, null, function (err, result) {
+		if (err) {
+			console.error("An error occured while loading velov states:", err, "aborting server start.")
+			return false
+		};
+		for (var i = 0; i < result.rows.length; i++) {
+			STATES_CODES[result.rows[i].codename] = result.rows[i].id
+		};
 
-		stream.addListener("connect", function(){
-			console.log("VSERV: ", new Date(), "New velovs server connection established.")
+		var server = net.createServer(function(stream) {
+			stream.setTimeout(0);
+			stream.setEncoding("utf8");
+
+			stream.addListener("connect", function(){
+				console.log("VSERV: ", new Date(), "New velovs server connection established.")
+			});
+
+			var buffer = ""
+			stream.addListener("data", function (data) {
+				console.log("VSERV: ", new Date(), "Receiving data from a velov.")
+				buffer += data
+				var pos = -1
+				while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
+					console.log(new Date(), "A frame is over")
+					console.log(buffer)
+					console.log(buffer.indexOf(FRAME_SEPARATOR))
+					// console.log("pos=", pos)
+					var frame = buffer.substr(0, pos)
+					buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
+					var frame_data = decode(frame)
+					frame_action(frame_data, db)
+				};
+				console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
+			});
+
+			stream.addListener("end", function() {
+				console.log("VSERV: ", "Closing a velovs server connection")
+
+				stream.end();
+			});
 		});
 
-		var buffer = ""
-		stream.addListener("data", function (data) {
-			console.log("VSERV: ", new Date(), "Receiving data from a velov.")
-			buffer += data
-			var pos = -1
-			while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
-				console.log(new Date(), "A frame is over")
-				console.log(buffer)
-				console.log(buffer.indexOf(FRAME_SEPARATOR))
-				// console.log("pos=", pos)
-				var frame = buffer.substr(0, pos)
-				buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
-				var frame_data = decode(frame)
-				frame_action(frame_data, db)
-			};
-			console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
-		});
-
-		stream.addListener("end", function(){
-			console.log("VSERV: ", "Closing a velovs server connection")
-
-			stream.end();
-		});
-	});
-
-	server.listen(port);
+		server.listen(port);
+	})
 
 	//TODO: Remove this test code:
 	// setInterval(function () {
-	// 	message_velov(0, {ip: '127.0.0.1'}, null)
+	// 	message_velov(0, {ip: '192.168.43.56'}, null)
 	// }, 1000)
 
 }
