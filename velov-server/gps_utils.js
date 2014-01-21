@@ -18,10 +18,11 @@ var get_tile_from_gps_coords = function (lat, long) {
 	var lat_delta = Math.abs(lat - O_lat)
 	var long_delta = long - O_long
 
-	var row = lat_delta // tile_height
-	var col = long_delta // tile_width
+	var row = Math.ceil(lat_delta / tile_height) - 1
+	var col = Math.ceil(long_delta / tile_width) - 1
 
 	var index = row * tiles_per_row + col
+	return index
 }
 
 exports.get_tile_from_gps_coords = get_tile_from_gps_coords

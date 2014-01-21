@@ -12,17 +12,27 @@ function test_tile_gps () {
 	var expected = 0
 
 	if (tile_index != expected) {
-		console.error("Error, the returned tile should have been", expected)
+		console.error("Error, the returned tile should have been", expected, "but was ", tile_index)
 	};
 	// Those ones should be on the 4th one
 	var lat = 45.8 - 0.005
 	var long = 4.77 + 0.035
 	var tile_index = gps_utils.get_tile_from_gps_coords(lat, long)
-	var expected = 4
+	var expected = 3
 
 	if (tile_index != expected) {
-		console.error("Error, the returned tile should have been", expected)
+		console.error("Error, the returned tile should have been", expected, "but was ", tile_index)
 	};
+
+	var lat = 45.8 - 0.055
+	var long = 4.77 + 0.045
+	var tile_index = gps_utils.get_tile_from_gps_coords(lat, long)
+	var expected = 10*5 + 4
+
+	if (tile_index != expected) {
+		console.error("Error, the returned tile should have been", expected, "but was ", tile_index)
+	};
+
 }
 
 test_tile_gps()
