@@ -8,16 +8,9 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
@@ -28,10 +21,6 @@ SET default_tablespace = '';
 
 SET default_with_oids = false;
 
---
--- Name: task_types; Type: TABLE; Schema: public; Owner: velovunchained; Tablespace: 
---
-
 CREATE TABLE task_types (
     id integer NOT NULL,
     name character(10)
@@ -39,10 +28,6 @@ CREATE TABLE task_types (
 
 
 ALTER TABLE public.task_types OWNER TO velovunchained;
-
---
--- Name: task_types_id_seq; Type: SEQUENCE; Schema: public; Owner: velovunchained
---
 
 CREATE SEQUENCE task_types_id_seq
     START WITH 1
@@ -54,9 +39,6 @@ CREATE SEQUENCE task_types_id_seq
 
 ALTER TABLE public.task_types_id_seq OWNER TO velovunchained;
 
---
--- Name: task_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: velovunchained
---
 
 ALTER SEQUENCE task_types_id_seq OWNED BY task_types.id;
 ALTER TABLE ONLY task_types ALTER COLUMN id SET DEFAULT nextval('task_types_id_seq'::regclass);
@@ -92,8 +74,8 @@ CREATE SEQUENCE velovs_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER SEQUENCE velovs_id_seq OWNED BY velovs.id;
 ALTER TABLE public.velovs_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE velovs_id_seq OWNED BY velovs.id;
 ALTER TABLE ONLY velovs ADD CONSTRAINT velovs_pk PRIMARY KEY (id);
 ALTER TABLE ONLY velovs ALTER COLUMN id SET DEFAULT nextval('velovs_id_seq'::regclass);
 
@@ -113,8 +95,8 @@ CREATE SEQUENCE velov_location_history_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER SEQUENCE velov_location_history_id_seq OWNED BY velov_location_history.id;
 ALTER TABLE public.velov_location_history_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE velov_location_history_id_seq OWNED BY velov_location_history.id;
 ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_location_history_pk PRIMARY KEY (id);
 ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_loc_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
 ALTER TABLE ONLY velov_location_history ALTER COLUMN id SET DEFAULT nextval('velov_location_history_id_seq'::regclass);
