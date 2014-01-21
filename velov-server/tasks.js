@@ -2,8 +2,9 @@
 
 var sd = require('./shared_data')
 var t = sd.TABLE_NAMES
+var TASK_STATES_CODES = sd.TASK_STATES_CODES
 var check_for_tasks = function (db) {
-	db.select_query(t['t'], ['*'], ['status'], ['todo'], function (err, result) {
+	db.select_query(t['t'], ['*'], ['status'], [TASK_STATES_CODES['todo']], function (err, result) {
 		
 		if (err) {
 			console.error("Could not retrieve list of todo tasks.", err)
@@ -15,7 +16,7 @@ var check_for_tasks = function (db) {
 			ids += comma + result.row[i].id
 			comma = ","
 		};
-		db.text_query('UPDATE ' + t['t'] + "SET status = 'pending' WHERE id IN(" + ids + ")" , function (err2, result2) {
+		db.text_query('UPDATE ' + t['t'] + "SET status = '" + TASK_STATES_CODES['inprogress'] + "' WHERE id IN(" + ids + ")" , function (err2, result2) {
 			if (err2) {
 				console.error("Something went wrong when trying to set as pending, tasks that were for current run.", err2, result2)
 			};

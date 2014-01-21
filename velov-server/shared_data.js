@@ -8,4 +8,12 @@ var TABLE_NAMES = { // shortens the code, and avoids spelldraws, in short, THIS 
 	, 's': "states"
 }
 
-exports.TABLE_NAMES
+var TASK_STATES_CODES = {
+	  'todo': 1,
+	, 'inprogress': 2
+	, 'success': 3
+	, 'failure': 4
+}
+
+exports.TABLE_NAMES = TABLE_NAMES
+exports.TASK_STATES_CODES = TASK_STATES_CODES
