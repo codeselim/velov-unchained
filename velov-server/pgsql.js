@@ -33,7 +33,7 @@ var insert_query = function (table_name, columns, values, callback) {
 var select_query = function (table_name, columns, columns_where, values_where, operator_where, callback) {
 	var where_clause = ""
 	if (typeof columns_where != "undefined" && typeof values_where != "undefined" && columns_where && values_where) {
-		where_clause =" WHERE (" + get_where_clause(columns_where, values_where) + ")" 
+		where_clause =" WHERE (" + get_where_clause(columns_where, values_where, 1, operator_where) + ")" 
 	}
 
 	var query_str = "SELECT " + columns.join(", ") + " FROM " + table_name + where_clause
@@ -43,14 +43,21 @@ var select_query = function (table_name, columns, columns_where, values_where, o
 	client.query(query_str, values_where , callback)
 }
 
-var update_query = function (table_name, columns, columns_where, values_where, operator_where, callback) {
+var update_query = function (table_name, columns, values, columns_where, values_where, operator_where, callback) {
 	var values_params = []
 	var comma = ''
-	for (var i = 0; i < values.length; i++) {
+	for (var i = 0; i < columns.length; i++) {
 		values_params += comma + columns[i] + "=$" + (i+1)
 		comma = ', '
 	};
-	client.query("UPDATE " + table_name + " SET " + values_params, values , callback)
+	var where_clause = ""
+	if (typeof columns_where != "undefined" && typeof values_where != "undefined" && columns_where && values_where) {
+		where_clause =" WHERE (" + get_where_clause(columns_where, values_where, values.length+1, operator_where) + ")" 
+	}
+	var query_str = "UPDATE " + table_name + " SET " + values_params + where_clause
+	values = values.concat(values_where)
+	console.log("Issuing query ", query_str, "with values", values)
+	client.query(query_str, values , callback)
 }
 
 var delete_query = function (table_name, columns, values, operator, callback) {
@@ -58,7 +65,7 @@ var delete_query = function (table_name, columns, values, operator, callback) {
 	client.query("DELETE FROM " + table_name + " WHERE " + values_params, values , callback)
 }
 
-var get_where_clause = function (columns, values, operator) {
+var get_where_clause = function (columns, values, start_index, operator) {
 	var values_params = ""
 	if (typeof operator == "undefined" || !operator) {
 		var operator = " AND "
@@ -67,7 +74,7 @@ var get_where_clause = function (columns, values, operator) {
 	}
 	var comma = ''
 	for (var i = 0; i < values.length; i++) {
-		values_params += comma + columns[i] + "=$" + (i+1)
+		values_params += comma + columns[i] + "=$" + (i+start_index)
 		comma = operator
 	};
 	return values_params
