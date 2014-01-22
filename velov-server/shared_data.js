@@ -17,6 +17,9 @@ var TASK_STATES_CODES = {
 	, 'failure': 4
 }
 
+var DATABASE_POLL_INTERVAL = 1000 // milliseconds
+
 exports.TABLE_NAMES = TABLE_NAMES
 exports.TASK_STATES_CODES = TASK_STATES_CODES
 exports.pgsql = pgsql
+exports.DATABASE_POLL_INTERVAL = DATABASE_POLL_INTERVAL

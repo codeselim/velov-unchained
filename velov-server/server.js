@@ -94,7 +94,7 @@ function start (db, port) {
 
 	setInterval(function () {
 		tasks.check_for_tasks(db)
-	}, 5000);
+	}, sd.DATABASE_POLL_INTERVAL);
 
 	//TODO: Remove this test code:
 	// setInterval(function () {
