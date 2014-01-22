@@ -10,7 +10,7 @@ var check_for_tasks = function (db) {
 		if (err) {
 			console.error("Could not retrieve list of todo tasks.", err)
 		} else {
-			console.log("The following task were retrieved and have to be processed", result)
+			console.log("The following task were retrieved and have to be processed", result.rows)
 		}
 
 		if (!result.rows.length) {
