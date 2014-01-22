@@ -42,7 +42,7 @@ class NetworkEventHandler(EventHandlerInterface):
 		return True
 
 	def _sendAnswer(self, ans):
-		ans_str = None
+		ans_str = "REP " # "REPly" command
 		if (ans):
 			ans_str = "OK"
 		else:
