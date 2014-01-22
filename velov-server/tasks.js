@@ -38,10 +38,11 @@ var process_tasks = function (tasks_from_db) {
 		switch (tasks_from_db.rows[i].type) {
 			case 1:// Change state to unlockable
 				netw.message_velov(
-					1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 					{
+						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
-						'message': "CHG 1"
+						'cmd': 'CHG',
+						params: ['UNL']
 					},
 					function () {
 						console.log("Message sent to velov.")
@@ -50,22 +51,63 @@ var process_tasks = function (tasks_from_db) {
 				break;
 			case 2:// Change state to available
 				netw.message_velov(
-					1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 					{
+						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
-						'message': "CHG 2"
+						'cmd': 'CHG',
+						params: ['AVA']
 					},
 					function () {
 						console.log("Message sent to velov.")
 					}
 				)
 				break;
-			case 3:// Change state to NOT available
+			case 3:// Change state to NOT available (Unusable)
 				netw.message_velov(
-					1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 					{
+						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
-						'message': "CHG 3"
+						'cmd': 'CHG',
+						params: ['UNU']
+					},
+					function () {
+						console.log("Message sent to velov.")
+					}
+				)
+				break;
+			case 4:// Change state to In Use
+				netw.message_velov(
+					{
+						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
+						'ip': '127.0.0.1',
+						'cmd': 'CHG',
+						params: ['USE']
+					},
+					function () {
+						console.log("Message sent to velov.")
+					}
+				)
+				break;
+			case 5:// Change state to Off
+				netw.message_velov(
+					{
+						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
+						'ip': '127.0.0.1',
+						'cmd': 'CHG',
+						params: ['OFF']
+					},
+					function () {
+						console.log("Message sent to velov.")
+					}
+				)
+				break;
+			case 6:// Change state to Reserved
+				netw.message_velov(
+					{
+						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
+						'ip': '127.0.0.1',
+						'cmd': 'CHG',
+						params: ['RES']
 					},
 					function () {
 						console.log("Message sent to velov.")

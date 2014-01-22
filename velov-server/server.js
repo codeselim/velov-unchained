@@ -7,21 +7,16 @@ var events = require('events');
 var net = require("net");
 var gps_utils = require("./gps_utils");
 var tasks = require("./tasks");
+var netw = require('./network')
 var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
 var FRAME_SEPARATOR = "\n"
 var DATA_SEPARATOR = "\t"
-var sha1sum = require('crypto').createHash('sha1')
 var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
 var STATES_CODES = {}
 
 var DBG = true
 var sd = require('./shared_data')
 var t = sd.TABLE_NAMES // handy shortcut, for even shorter use
-
-var sha1 = function (string) {
-	sha1sum.update(string)
-	return sha1sum.digest('hex')
-}
 
 var decode = function (frame) {
 	var data = get_data_from_frame(frame)
@@ -70,9 +65,7 @@ var get_params_from_data = function (data) {
 	return data.substr(CMD_LEN+1, data.length).split(" ")
 }
 
-var checksum = function (data) {
-	return sha1(data)
-}
+
 
 var get_data_from_frame = function (frame) {
 	var data_end_pos = frame.indexOf(DATA_SEPARATOR)
@@ -89,7 +82,7 @@ var get_checksum_from_frame = function (frame) {
 var check_checksum = function (frame) {
 	var data = get_data_from_frame(frame)
 	var data_checksum = get_checksum_from_frame(frame)
-	return (checksum(data) === data_checksum)
+	return (netw.checksum(data) === data_checksum)
 }
 
 var action_localization = function (frame_data, db) {
