@@ -161,3 +161,35 @@ ALTER TABLE ONLY velov_state_history ADD CONSTRAINT velov_state_history_state_id
 ALTER TABLE ONLY velov_state_history ALTER COLUMN id SET DEFAULT nextval('velov_state_history_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
+
+CREATE TABLE subscribers (
+    id bigint NOT NULL,
+    login varchar(120) NOT NULL,
+    password varchar(120) NOT NULL,
+    creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    is_disabled BOOLEAN DEFAULT FALSE,
+    firstname varchar(120) NOT NULL,
+    lastname varchar(120) NOT NULL,
+    sex char(1) NOT NULL,
+    birth_date DATE NOT NULL,
+    address varchar(220) NOT NULL,
+    code_postal varchar(10) NOT NULL,
+    ville varchar(45) NOT NULL,
+    email varchar(100) NOT NULL,
+    tel_portable integer NOT NULL,
+    tel_secondaire integer NULL,
+    membership_exipry_date TIMESTAMP NOT NULL
+);
+ALTER TABLE public.subscribers OWNER TO velovunchained;
+CREATE SEQUENCE subscribers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.subscribers_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE subscribers_id_seq OWNED BY subscribers.id;
+ALTER TABLE ONLY subscribers ADD CONSTRAINT subscribers_pk PRIMARY KEY (id);
+ALTER TABLE ONLY subscribers ALTER COLUMN id SET DEFAULT nextval('subscribers_id_seq'::regclass);
+
+-- --------------------------------- ---------------------------------
