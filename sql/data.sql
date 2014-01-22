@@ -1,10 +1,24 @@
 INSERT INTO task_types (id, name) VALUES (1, 'Change state to Unlockable');
 INSERT INTO task_types (id, name) VALUES (2, 'Change state to Available');
-INSERT INTO task_types (id, name) VALUES (3, 'Change state to Not Available');
-INSERT INTO task_types (id, name) VALUES (4, 'Change state to Not Available');
-INSERT INTO task_types (id, name) VALUES (5, 'Change state to In Maintenance');
+INSERT INTO task_types (id, name) VALUES (3, 'Change state to Unusable');
+INSERT INTO task_types (id, name) VALUES (4, 'Change state to In Use');
+INSERT INTO task_types (id, name) VALUES (5, 'Change state to Off');
+INSERT INTO task_types (id, name) VALUES (6, 'Change state to Reserved');
 
 SELECT pg_catalog.setval('task_types_id_seq', 6, true);
+
+-- ---------------------------------------------- --------------------------------------
+
+INSERT INTO states (id, codename, name) VALUES (1, 'UNK', 'Unknown');
+INSERT INTO states (id, codename, name) VALUES (2, 'USE', 'In use');
+INSERT INTO states (id, codename, name) VALUES (3, 'STO', 'Stolen');
+INSERT INTO states (id, codename, name) VALUES (4, 'UNU', 'Unused');
+INSERT INTO states (id, codename, name) VALUES (5, 'RES', 'Reserved');
+INSERT INTO states (id, codename, name) VALUES (6, 'UNL', 'Unlockable');
+INSERT INTO states (id, codename, name) VALUES (7, 'AVA', 'Available');
+INSERT INTO states (id, codename, name) VALUES (8, 'OFF', 'Off');
+
+SELECT pg_catalog.setval('states_id_seq', 9, true);
 
 -- ---------------------------------------------- --------------------------------------
 
