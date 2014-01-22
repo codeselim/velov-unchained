@@ -52,7 +52,7 @@ class ThreadSE(ThreadBase):
 			else:
 			 	if msg.type in self._handlers:
 			 		handler = self._handlers[msg.type]
-			 		if not handler.execute(msg.data):
+			 		if not handler.execute(msg):
 			 			self._writeLineOnScreen("/!\ Erreur à l'exec du handler:")
 			 			self._writeLineOnScreen(handler._err_msg)
 			 	else:

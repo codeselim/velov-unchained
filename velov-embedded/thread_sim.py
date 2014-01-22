@@ -12,11 +12,11 @@ système embarqué
 
 from curses import ascii
 from threading import Thread
-from SocketServer import TCPServer, StreamRequestHandler
+from SocketServer import TCPServer, BaseRequestHandler
 
 from thread_base import ThreadBase
 from fifo_itc import FifoITC
-from msg import Msg, MsgType
+from msg import Msg, MsgType, MsgWithSocket
 from cmd_interpreter_interface import CmdInterpreterInterface
 from button_cmd_interpreter import ButtonCmdInterpreter
 
@@ -24,20 +24,46 @@ SERVER_PORT = 5000
 SERVER_HOST = "localhost"
 
 
-class NetworkServerHandler(StreamRequestHandler):
+class NetworkServerHandler(BaseRequestHandler):
 
 	fifo = None
 
 	def handle(self):
 		# Construction du message pour la FIFO
-		msg = Msg(MsgType.Net, self.rfile.readline().strip())
-		# Envoie du message
+		# Reads until we find "\n"
+		total_data=[];data=''
+		end = "\n"
+		while True:
+			data=self.request.recv(8192)
+			if end in data:
+				total_data.append(data[:data.find(end)])
+				break
+				total_data.append(data)
+				if len(total_data)>1:
+					#check if end_of_data was split
+					last_pair=total_data[-2]+total_data[-1]
+					if end in last_pair:
+						total_data[-2]=last_pair[:last_pair.find(End)]
+						total_data.pop()
+						break
+		data = ''.join(total_data)
+		msg = MsgWithSocket(MsgType.Net, data.strip(), self.request)
+		# Envoi du message
 		NetworkServerHandler.fifo.AddMsg(msg)
 
 class MyTCPServer(TCPServer, object):
 	def __init__(self, address, request_handler, reuse_address=False):
 		self.allow_reuse_address = reuse_address
 		super(MyTCPServer, self).__init__(address, request_handler)		
+	
+	def process_request(self, request, client_address):
+		"""
+		Overriding BaseServer default behaviour of shutting down the request
+		at the end of request processing by letting the request
+		be shut down from somewhere else
+		"""
+		super(MyTCPServer, self).finish_request(request, client_address)
+		# self.shutdown_request(request)
 
 class NetworkServerThread(Thread):
 

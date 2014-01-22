@@ -4,7 +4,7 @@
 Définit les message échangé entre les deux threads
 """
 
-class MsgType:
+class MsgType(object):
 	'''
 	Enumeration représentant le type de message échangé.
 	Chaque type de message peut-être assimilé à une ligne d'interruption
@@ -15,7 +15,7 @@ class MsgType:
 	Net = 'Net'
 
 
-class Msg:
+class Msg(object):
 	"""Classe représentant un message de la FIFO"""
 
 	def __init__(self, msg_type, data):
@@ -26,3 +26,10 @@ class Msg:
 		"""
 		self.type = msg_type
 		self.data = data
+
+class MsgWithSocket(Msg):
+	"""Msg... with socket"""
+	def __init__(self, msg_type, data, socket):
+		super(MsgWithSocket, self).__init__(msg_type, data)
+		self.socket = socket
+		
