@@ -12,7 +12,7 @@ système embarqué
 
 from curses import ascii
 from threading import Thread
-import SocketServer
+from SocketServer import TCPServer, StreamRequestHandler
 
 from thread_base import ThreadBase
 from fifo_itc import FifoITC
@@ -24,7 +24,7 @@ SERVER_PORT = 5000
 SERVER_HOST = "localhost"
 
 
-class NetworkServerHandler(SocketServer.StreamRequestHandler):
+class NetworkServerHandler(StreamRequestHandler):
 
 	fifo = None
 
@@ -34,12 +34,16 @@ class NetworkServerHandler(SocketServer.StreamRequestHandler):
 		# Envoie du message
 		NetworkServerHandler.fifo.AddMsg(msg)
 
+class MyTCPServer(TCPServer, object):
+	def __init__(self, address, request_handler, reuse_address=False):
+		self.allow_reuse_address = reuse_address
+		super(MyTCPServer, self).__init__(address, request_handler)		
 
 class NetworkServerThread(Thread):
 
 	def __init__(self, port, host, handler):
 		Thread.__init__(self)
-		self._server = SocketServer.TCPServer((host, port), handler)
+		self._server = MyTCPServer((host, port), handler, reuse_address=True)
 
 	def run(self):
 		self._server.serve_forever()
