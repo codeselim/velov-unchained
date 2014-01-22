@@ -53,7 +53,7 @@ CREATE SEQUENCE task_states_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE ONLY task_states ADD CONSTRAINT tasks_pk PRIMARY KEY (id);
+ALTER TABLE ONLY task_states ADD CONSTRAINT tasks_states_pk PRIMARY KEY (id);
 ALTER TABLE public.task_states_id_seq OWNER TO velovunchained;
 ALTER SEQUENCE task_states_id_seq OWNED BY task_states.id;
 ALTER TABLE ONLY task_states ALTER COLUMN id SET DEFAULT nextval('task_states_id_seq'::regclass);
