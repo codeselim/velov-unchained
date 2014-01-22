@@ -9,81 +9,15 @@ var gps_utils = require("./gps_utils");
 var tasks = require("./tasks");
 var netw = require('./network')
 var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
-var FRAME_SEPARATOR = "\n"
-var DATA_SEPARATOR = "\t"
-var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
+var FRAME_SEPARATOR = netw.FRAME_SEPARATOR
+var DATA_SEPARATOR = netw.DATA_SEPARATOR
 var STATES_CODES = {}
 
 var DBG = true
 var sd = require('./shared_data')
 var t = sd.TABLE_NAMES // handy shortcut, for even shorter use
 
-var decode = function (frame) {
-	var data = get_data_from_frame(frame)
-
-	if (DBG) {
-		console.log("decode(), data=", data)
-	};
-
-	var type = get_type_from_data(data)
-	var cmd = get_cmd_from_data(data)
-	var params = get_params_from_data(data)
-	var result = {
-		  'type': type
-		, 'cmd': cmd
-		, 'params': params
-	}
-
-	if (DBG) {
-		console.log("decode(),frame=", frame, "result=", result)
-	};
-
-	return result
-}
-
-/**
- * @return the command, extracted from the data, such as "CHG" for a state change, "LOC" for a localization command, etc. ...
-*/
-var get_cmd_from_data = function (data) {
-	return data.substr(0, CMD_LEN)
-}
-
-
-/**
- * @return the type of the frame, extracted from the data, such as "CHG" for a state change, "LOC" for a localization command, etc. ...
-*/
-var get_type_from_data = function (data) {
-	 // current implementation is the same as returning the cmd but we might want 
-	 // to change this in the future so we keep this a separate function
-	return get_cmd_from_data(data)
-}
-
-/**
-@return an array of space-separated parameters of the given data
-*/
-var get_params_from_data = function (data) {
-	return data.substr(CMD_LEN+1, data.length).split(" ")
-}
-
-
-
-var get_data_from_frame = function (frame) {
-	var data_end_pos = frame.indexOf(DATA_SEPARATOR)
-	var data = frame.substr(0, data_end_pos)
-	return data
-}
-
-var get_checksum_from_frame = function (frame) {
-	var data_end_pos = frame.indexOf(DATA_SEPARATOR)
-	var data_checksum = frame.substr(data_end_pos + data_end_pos.length, frame.length)
-	return data_checksum
-}
-
-var check_checksum = function (frame) {
-	var data = get_data_from_frame(frame)
-	var data_checksum = get_checksum_from_frame(frame)
-	return (netw.checksum(data) === data_checksum)
-}
+var decode = netw.decode
 
 var action_localization = function (frame_data, db) {
 	var tile_index = get_tile_from_gps_coords(frame_data.params[2], frame_data.params[3])

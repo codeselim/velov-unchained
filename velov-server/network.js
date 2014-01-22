@@ -1,9 +1,12 @@
 "use strict"
 
-var VELOV_MESSAGE_FAILED_RETRY_TIME = 10000 // milliseconds
+var VELOV_MESSAGE_FAILED_RETRY_TIME = 5000 // milliseconds
 var VELOV_CONNECTION_PORT = 5000
 var net = require('net')
 var crypto = require('crypto')
+var FRAME_SEPARATOR = "\n"
+var DATA_SEPARATOR = "\t"
+var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
 
 var sha1 = function (string) {
 	var sha1sum = crypto.createHash('sha1')
@@ -13,42 +16,114 @@ var sha1 = function (string) {
 
 var DBG = true
 
-var message_velov = function (data, callback, tries_count) {
+var message_velov = function (data_to_send, callback, tries_count) {
 	var sock = new net.Socket()
 
 	if (typeof tries_count == "undefined" || tries_count === null) {
 		tries_count = 1
 	};
 
-	var message = create_frame_from_data(data)
+	var message = create_frame_from_data(data_to_send)
 	
 	// TODO: Add some SSL security to this connection...
-	sock.connect(VELOV_CONNECTION_PORT, data.ip, function () { 
-		console.log('message_velov: Connection to velov ' + data.velov_id + ' established, going to send: ', message)
+	sock.connect(VELOV_CONNECTION_PORT, data_to_send.ip, function () { 
+		console.log('message_velov: Connection to velov ' + data_to_send.velov_id + ' established, going to send: ', message)
 		sock.write(message, null, function () {
-			sock.end()
-			sock.destroy()
-			console.log('message_velov: Data sent to velov, disconnecting.')
-			console.log("Exiting in message_velov() callback")
+			console.log('message_velov: Data sent to velov.')
 		})
-		// The following code was originally in the write() callback BUT. As the data is less than the kernel io buffer, it seems there a kind of a bug in nodejs and the callback s called extremely long after, not to say never
-		// So just consider the data was written: 
-		if (null != callback) {
-			callback()
-		};
 	})
 
+	var buffer = ""
+	sock.addListener("data", function (reply_frame_buffer) {
+		console.log(Date.now(), "Velov said:", reply_frame_buffer)
+		buffer += reply_frame_buffer
+		var pos = -1
+		while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
+			var frame = buffer.substr(0, pos)
+			buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
+			var reply_data = decode(frame)
+			callback(reply_data, data_to_send)
+		};
+	});
+
 	sock.on("error", function () { 
-		console.error("message_velov:", new Date().toString() + "Could not send message " + message + "to velov " + data.velov_id + ", trying again in 10 seconds."); 
+		console.error("message_velov:", new Date().toString() + "Could not send message " + message + "to velov " + data_to_send.velov_id + ", trying again in 10 seconds."); 
 		setTimeout(function () {
-			message_velov(data, callback, tries_count+1)
+			message_velov(data_to_send, callback, tries_count+1)
 		}, VELOV_MESSAGE_FAILED_RETRY_TIME)
 	})
+}
+
+var decode = function (frame) {
+	var data = get_data_from_frame(frame)
+
+	if (DBG) {
+		console.log("decode(), data=", data)
+	};
+
+	var type = get_type_from_data(data)
+	var cmd = get_cmd_from_data(data)
+	var params = get_params_from_data(data)
+	var result = {
+		  'type': type
+		, 'cmd': cmd
+		, 'params': params
+		, 'raw_frame': frame // Can be useful in some cases
+	}
+
+	if (DBG) {
+		console.log("decode(),frame=", frame, "result=", result)
+	};
+
+	return result
 }
 
 var checksum = function (data) {
 	return sha1(data)
 }
+
+/**
+ * @return the command, extracted from the data, such as "CHG" for a state change, "LOC" for a localization command, etc. ...
+*/
+var get_cmd_from_data = function (data) {
+	return data.substr(0, CMD_LEN)
+}
+
+
+/**
+ * @return the type of the frame, extracted from the data, such as "CHG" for a state change, "LOC" for a localization command, etc. ...
+*/
+var get_type_from_data = function (data) {
+	 // current implementation is the same as returning the cmd but we might want 
+	 // to change this in the future so we keep this a separate function
+	return get_cmd_from_data(data)
+}
+
+/**
+@return an array of space-separated parameters of the given data
+*/
+var get_params_from_data = function (data) {
+	return data.substr(CMD_LEN+1, data.length).split(" ")
+}
+
+var get_data_from_frame = function (frame) {
+	var data_end_pos = frame.indexOf(DATA_SEPARATOR)
+	var data = frame.substr(0, data_end_pos)
+	return data
+}
+
+var get_checksum_from_frame = function (frame) {
+	var data_end_pos = frame.indexOf(DATA_SEPARATOR)
+	var data_checksum = frame.substr(data_end_pos + data_end_pos.length, frame.length)
+	return data_checksum
+}
+
+var check_checksum = function (frame) {
+	var data = get_data_from_frame(frame)
+	var data_checksum = get_checksum_from_frame(frame)
+	return (netw.checksum(data) === data_checksum)
+}
+
 
 var create_frame_from_data = function (data) {
 	var frame = data.cmd + " " + data.velov_id + " " + Date.now() + " " + data.params.join(" ")
@@ -63,3 +138,6 @@ var create_frame_from_data = function (data) {
 exports.message_velov = message_velov
 exports.create_frame_from_data = create_frame_from_data
 exports.checksum = checksum
+exports.FRAME_SEPARATOR = FRAME_SEPARATOR
+exports.DATA_SEPARATOR = DATA_SEPARATOR
+exports.decode = decode

@@ -1,4 +1,6 @@
-server = require('./server')
-pgsql = require('./pgsql')
+"use strict"
 
-server.start(pgsql, 3000)
+var server = require('./server')
+var shared_data = require('./shared_data')
+
+server.start(shared_data.pgsql, 3000)
