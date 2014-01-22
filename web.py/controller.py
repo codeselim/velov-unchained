@@ -8,8 +8,7 @@ web.config.debug = False
 
 urls = (
     '/', 'index',
-    'logout', 'logout'
-    'login', 'login'
+    '/logout', 'logout'
 )
 
 app = web.application(urls, globals())
@@ -46,10 +45,10 @@ class index:
 		util = "Charlotte"
 		return render.index(util)
 
+class logout:
+	def GET(self):
+		authentication.logout(session)
+		raise web.seeother('/')
+
 if __name__ == "__main__":
 	app.run()
-
-
-# class logout:
-# 	def GET(self):
-# 		authentication.logout(session)
