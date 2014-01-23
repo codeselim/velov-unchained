@@ -33,22 +33,61 @@ var check_for_tasks = function (db) {
 	})
 }
 
+var register_user_action = function (success, reply_data, original_data) {
+	if (!success) {
+		return
+	};
+	var task = original_data.task
+	if (task.type == sd.TASK_TYPE_CODES['chg_unl']) {
+		// The user asked to set the velov to unlockable and is has bee done with success
+		// then, register it into the db
+		sd.pgsql.insert_query(
+			t['uah'],
+			['velov_id', 'user_id', 'time', 'action_id'],
+			[task.velov_id, task.user_id, reply_data.time, sd.USER_ACTION_CODES['ask_unlockable']],
+			function (err, result) {
+				if (err) {
+					console.error("ERR somethign went wrong while inserting the new user action")
+				};
+			}
+		)
+	};
+	if (task.type == sd.TASK_TYPE_CODES['chg_res']) {
+		// The user asked to set the velov to unlockable and is has bee done with success
+		// then, register it into the db
+		sd.pgsql.insert_query(
+			t['uah'],
+			['velov_id', 'user_id', 'time', 'action_id'],
+			[task.velov_id, task.user_id, reply_data.time, sd.USER_ACTION_CODES['reserve']],
+			function (err, result) {
+				if (err) {
+					console.error("ERR somethign went wrong while inserting the new user action")
+				};
+			}
+		)
+	};
+}
+
 var process_chg_state_velov_reply = function (reply_data, original_data) {
-	console.log("Message sent to velov. And it replied (task_id=", original_data.task_id, ")")
+	console.log("Message sent to velov. And it replied (task.id=", original_data.task.id, ")")
 	if (reply_data.cmd === "REP") {
 		if (reply_data.params[0] == "OK") {
 			console.log("Velov answered OK")
-			sd.pgsql.update_query(t['t'], ['task_state_id'], [TASK_STATES_CODES['success']], ['id'], [original_data.task_id], null, function (err, result) {
+			sd.pgsql.update_query(t['t'], ['task_state_id'], [TASK_STATES_CODES['success']], ['id'], [original_data.task.id], null, function (err, result) {
 				if (err) {
 					console.error("Something went wrong while trying to set the task as successfull")
-				};
+				} else {
+					register_user_action(true, reply_data, original_data)
+				}
 			})
 		} else if (reply_data.params[0] == "NOK") {
 			console.log("Velov answered NOK")
-			sd.pgsql.update_query(t['t'], ['task_state_id'], [TASK_STATES_CODES['failure']], ['id'], [original_data.task_id], null, function (err, result) {
+			sd.pgsql.update_query(t['t'], ['task_state_id'], [TASK_STATES_CODES['failure']], ['id'], [original_data.task.id], null, function (err, result) {
 				if (err) {
 					console.error("Something went wrong while trying to set the task as successfull")
-				};
+				} else {
+					register_user_action(false, reply_data, original_data)
+				}
 			})
 		} else {
 			console.error("Velov answered", reply_data.params[0], "which is not a valid REPly parameter")
@@ -58,14 +97,15 @@ var process_chg_state_velov_reply = function (reply_data, original_data) {
 
 var process_tasks = function (tasks_from_db) {
 	for (var i = 0; i < tasks_from_db.rows.length; i++) {
-		switch (tasks_from_db.rows[i].type) {
+		var task = tasks_from_db.rows[i]
+		switch (task.type) {
 			case 1:// Change state to unlockable
 				netw.message_velov(
 					{
 						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
 						'cmd': 'CHG',
-						task_id: tasks_from_db.rows[i].id,
+						'task': task,
 						params: ['UNL']
 					},
 					process_chg_state_velov_reply
@@ -77,7 +117,7 @@ var process_tasks = function (tasks_from_db) {
 						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
 						'cmd': 'CHG',
-						task_id: tasks_from_db.rows[i].id,
+						'task': task,
 						params: ['AVA']
 					},
 					process_chg_state_velov_reply
@@ -89,7 +129,7 @@ var process_tasks = function (tasks_from_db) {
 						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
 						'cmd': 'CHG',
-						task_id: tasks_from_db.rows[i].id,
+						'task': task,
 						params: ['UNU']
 					},
 					process_chg_state_velov_reply
@@ -101,7 +141,7 @@ var process_tasks = function (tasks_from_db) {
 						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
 						'cmd': 'CHG',
-						task_id: tasks_from_db.rows[i].id,
+						'task': task,
 						params: ['USE']
 					},
 					process_chg_state_velov_reply
@@ -113,7 +153,7 @@ var process_tasks = function (tasks_from_db) {
 						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
 						'cmd': 'CHG',
-						task_id: tasks_from_db.rows[i].id,
+						'task': task,
 						params: ['OFF']
 					},
 					process_chg_state_velov_reply
@@ -125,7 +165,7 @@ var process_tasks = function (tasks_from_db) {
 						velov_id: 1 /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */,
 						'ip': '127.0.0.1',
 						'cmd': 'CHG',
-						task_id: tasks_from_db.rows[i].id,
+						'task': task,
 						params: ['RES']
 					},
 					process_chg_state_velov_reply
