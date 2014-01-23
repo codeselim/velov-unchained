@@ -49,3 +49,15 @@ INSERT INTO user_actions (id, name) VALUES (5, 'Lock action');
 SELECT pg_catalog.setval('states_id_seq', 6, true);
 -- ---------------------------------------------- --------------------------------------
 
+INSERT INTO velovs (id) VALUES (1);
+INSERT INTO velovs (id) VALUES (2);
+INSERT INTO velovs (id) VALUES (3);
+INSERT INTO velovs (id) VALUES (4);
+INSERT INTO velovs (id) VALUES (5);
+
+SELECT pg_catalog.setval('velovs_id_seq', 6, true);
+-- ---------------------------------------------- --------------------------------------
+
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id) VALUES (1, 1, 1, 1);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id) VALUES (1, 1, 2, 2);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id) VALUES (1, 1, 2, 2);
