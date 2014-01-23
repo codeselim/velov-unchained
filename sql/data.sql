@@ -1,3 +1,5 @@
+\c velovunchained
+
 INSERT INTO task_types (id, name) VALUES (1, 'Change state to Unlockable');
 INSERT INTO task_types (id, name) VALUES (2, 'Change state to Available');
 INSERT INTO task_types (id, name) VALUES (3, 'Change state to Unusable');

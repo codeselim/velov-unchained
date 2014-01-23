@@ -14,3 +14,5 @@ sudo su postgres -c 'psql -d postgres < ./setup.sql'
 
 # Replace the configuration by our md5 passwords for all local users.
 sudo cp ./pg_hba.conf /var/lib/pgsql/data/pg_hba.conf
+sudo su postgres -c 'psql -d postgres -U velovunchained -W < ./schema.sql'
+sudo su postgres -c 'psql -d postgres -U velovunchained -W < ./data.sql'

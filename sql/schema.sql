@@ -8,6 +8,11 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
+DROP DATABASE IF EXISTS velovunchained;
+CREATE DATABASE velovunchained;
+GRANT ALL PRIVILEGES ON DATABASE velovunchained TO velovunchained;
+commit;
+\c velovunchained;
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
@@ -247,8 +252,7 @@ CREATE TABLE user_renting_sessions (
     user_id integer NOT NULL,
     velov_id integer NOT NULL,
     time_start bigint DEFAULT NULL,
-    time_end bigint DEFAULT NULL,
-    action_id integer NOT NULL
+    time_end bigint DEFAULT NULL
 );
 ALTER TABLE public.user_renting_sessions OWNER TO velovunchained;
 CREATE SEQUENCE user_renting_sessions_id_seq
