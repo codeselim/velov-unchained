@@ -23,6 +23,40 @@ SET default_with_oids = false;
 -- --------------------------------------------------------------
 -- --------------------------------------------------------------
 
+
+CREATE TABLE users (
+    id bigint NOT NULL,
+    login varchar(120) NOT NULL,
+    password varchar(120) NOT NULL,
+    creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    is_disabled BOOLEAN DEFAULT FALSE,
+    firstname varchar(120) NOT NULL,
+    lastname varchar(120) NOT NULL,
+    sex char(1) NOT NULL,
+    birth_date DATE NOT NULL,
+    address varchar(220) NOT NULL,
+    code_postal varchar(10) NOT NULL,
+    ville varchar(45) NOT NULL,
+    email varchar(100) NOT NULL,
+    tel_portable integer NOT NULL,
+    tel_secondaire integer NULL,
+    membership_exipry_date TIMESTAMP NOT NULL
+);
+ALTER TABLE public.users OWNER TO velovunchained;
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.users_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
+ALTER TABLE ONLY users ADD CONSTRAINT users_pk PRIMARY KEY (id);
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+-- --------------------------------- ---------------------------------
+
+
 CREATE TABLE task_types (
     id integer NOT NULL,
     name varchar(100) NOT NULL
@@ -63,6 +97,8 @@ ALTER TABLE ONLY task_states ALTER COLUMN id SET DEFAULT nextval('task_states_id
 CREATE TABLE velov_tasks (
     id integer NOT NULL,
     type integer NOT NULL,
+    user_id integer NOT NULL,
+    velov_id integer NOT NULL,
     task_state_id integer NOT NULL
 );
 ALTER TABLE public.velov_tasks OWNER TO velovunchained;
@@ -77,6 +113,8 @@ ALTER TABLE public.velov_tasks_id_seq OWNER TO velovunchained;
 ALTER SEQUENCE velov_tasks_id_seq OWNED BY velov_tasks.id;
 ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_type_fk FOREIGN KEY (type) REFERENCES task_types(id);
 ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_state_id_fk FOREIGN KEY (task_state_id) REFERENCES task_states(id);
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
 ALTER TABLE ONLY velov_tasks ALTER COLUMN id SET DEFAULT nextval('velov_tasks_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
@@ -162,34 +200,69 @@ ALTER TABLE ONLY velov_state_history ALTER COLUMN id SET DEFAULT nextval('velov_
 
 -- --------------------------------- ---------------------------------
 
-CREATE TABLE subscribers (
-    id bigint NOT NULL,
-    login varchar(120) NOT NULL,
-    password varchar(120) NOT NULL,
-    creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    is_disabled BOOLEAN DEFAULT FALSE,
-    firstname varchar(120) NOT NULL,
-    lastname varchar(120) NOT NULL,
-    sex char(1) NOT NULL,
-    birth_date DATE NOT NULL,
-    address varchar(220) NOT NULL,
-    code_postal varchar(10) NOT NULL,
-    ville varchar(45) NOT NULL,
-    email varchar(100) NOT NULL,
-    tel_portable integer NOT NULL,
-    tel_secondaire integer NULL,
-    membership_exipry_date TIMESTAMP NOT NULL
+CREATE TABLE user_actions (
+    id integer NOT NULL,
+    name varchar(100) NOT NULL
 );
-ALTER TABLE public.subscribers OWNER TO velovunchained;
-CREATE SEQUENCE subscribers_id_seq
+ALTER TABLE public.user_actions OWNER TO velovunchained;
+CREATE SEQUENCE user_actions_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE public.subscribers_id_seq OWNER TO velovunchained;
-ALTER SEQUENCE subscribers_id_seq OWNED BY subscribers.id;
-ALTER TABLE ONLY subscribers ADD CONSTRAINT subscribers_pk PRIMARY KEY (id);
-ALTER TABLE ONLY subscribers ALTER COLUMN id SET DEFAULT nextval('subscribers_id_seq'::regclass);
+ALTER TABLE public.user_actions_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE user_actions_id_seq OWNED BY user_actions.id;
+ALTER TABLE ONLY user_actions ADD CONSTRAINT user_actions_pk PRIMARY KEY (id);
+ALTER TABLE ONLY user_actions ALTER COLUMN id SET DEFAULT nextval('user_actions_id_seq'::regclass);
+
+-- --------------------------------- ---------------------------------
+
+CREATE TABLE user_action_history (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    velov_id integer NOT NULL,
+    time bigint NOT NULL,
+    action_id integer NOT NULL
+);
+ALTER TABLE public.user_action_history OWNER TO velovunchained;
+CREATE SEQUENCE user_action_history_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.user_action_history_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE user_action_history_id_seq OWNED BY user_action_history.id;
+ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_pk PRIMARY KEY (id);
+ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
+ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_state_id_fk FOREIGN KEY (action_id) REFERENCES user_actions(id);
+ALTER TABLE ONLY user_action_history ALTER COLUMN id SET DEFAULT nextval('user_action_history_id_seq'::regclass);
+
+-- --------------------------------- ---------------------------------
+
+CREATE TABLE user_renting_sessions (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    velov_id integer NOT NULL,
+    time_start bigint DEFAULT NULL,
+    time_end bigint DEFAULT NULL,
+    action_id integer NOT NULL
+);
+ALTER TABLE public.user_renting_sessions OWNER TO velovunchained;
+CREATE SEQUENCE user_renting_sessions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.user_renting_sessions_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE user_renting_sessions_id_seq OWNED BY user_renting_sessions.id;
+ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_pk PRIMARY KEY (id);
+ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
+ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_state_id_fk FOREIGN KEY (action_id) REFERENCES user_actions(id);
+ALTER TABLE ONLY user_renting_sessions ALTER COLUMN id SET DEFAULT nextval('user_renting_sessions_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
