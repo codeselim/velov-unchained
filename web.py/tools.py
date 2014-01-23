@@ -34,8 +34,7 @@ def rowColToIndex(row,col):
 
 #	Input:
 #	-index: index of a zone
-#	
-#	Output: Finds the zones on a square around the input zone, with a radius value of depth
+#	-output: Finds the zones on a square around the input zone, with a radius value of depth
 def zonePerimeter(index,depth):
 	tab = indexToRowCol(index)
 	if ((tab == -1)or(depth<=0)):
