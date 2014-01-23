@@ -97,7 +97,7 @@ ALTER TABLE ONLY task_states ALTER COLUMN id SET DEFAULT nextval('task_states_id
 CREATE TABLE velov_tasks (
     id integer NOT NULL,
     type integer NOT NULL,
-    user_id integer NOT NULL,
+    user_id integer, --  This column can be NULL because a task can be not related to a user (set to unusuable / maintenance, for instance (unless we have special users for maintenance guys... will see))
     velov_id integer NOT NULL,
     task_state_id integer NOT NULL
 );
