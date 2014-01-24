@@ -59,6 +59,8 @@ $def with (session)
 			else {
 				alert('Votre navigateur ne supporte pas la géolocalisation HTML5');
 			}
+
+			//Ouverture de pop-up si utilisateur a une action en cours
 		}
 		google.maps.event.addDomListener(window, 'load', initialize);
 									 
@@ -108,7 +110,7 @@ $def with (session)
 			});
 
 			$if session:
-				var contentString = writeContentString(velo,"$session['user_login']")
+				var contentString = writeContentString(velo)
 			$else:
 				var contentString = '<h6>'+velo.nameVelo+'</h6>'+
 				'<a disabled class="button">Réserver</a>&nbsp'+
@@ -123,7 +125,7 @@ $def with (session)
 			});
 		}
 
-		function writeContentString(velo,util){
+		function writeContentString(velo){
 			return '<h6>'+velo.nameVelo+'</h6>'+
 				'<a onclick=bookEvent(velo'+velo.nameVelo+') class="button">Réserver</a>&nbsp'+
 				'<a onclick=takeEvent(velo'+velo.nameVelo+') class="button">Prendre</a>';
@@ -159,26 +161,25 @@ $def with (session)
 		       	success: function(data){
 		       		if (data == "OK"){
 		       			jQuery('#bookOk').foundation('reveal', 'open');
-		       			jQuery.ajax({
-		       				url: 'http://maps.googleapis.com/maps/api/geocode/json',
-		       				type: 'GET',
-		       				data: 'latlng='+velo.lat+','+velo.long +'&sensor=true',
-		       				dataType: "json",
-		       				success: function(address){
-		       					if (address.status == "OK"){
-		       						jQuery('#addressVelo').html(address.results[0].formatted_address);
-		       						time = new Date();
-		       						time = time.getTime() + 300000;
-		       						bookTimer(time);
-		       					}
-		       					else{
-		       						jQuery('#addressVelo').html("Adresse non trouvée");
-		       					}
-		       				}
-		       			});
+		       			//TODO récupérer date de la fin de la réservation
+		       			time = new Date();
+		       			printAddress(velo.lat,velo.long);
+		       			bookTimer(time.getTime() + 300000);
 		       		}
 		       	}
 		    });
+		}
+
+		function printAddress(lat,long,time){
+			jQuery.ajax({
+   				url: 'http://maps.googleapis.com/maps/api/geocode/json',
+   				type: 'GET',
+   				data: 'latlng='+lat+','+long +'&sensor=true',
+   				dataType: "json",
+   				success: function(address){
+					jQuery('#addressVelo').html(address.results[0].formatted_address);
+   				}
+   			});
 		}
 
 		function takeEvent(velo){
@@ -198,11 +199,16 @@ $def with (session)
 		function bookTimer(time) {
 			now = new Date();
 			restTime = (time - now.getTime());
-			minutes = Math.floor(restTime / 60000);
-			secondes = Math.round((restTime - minutes)/1000) % 60;
-			timeHTML = minutes + " min " + secondes + " sec";
-			document.getElementById("timeBookVelo").innerHTML = timeHTML;
-			setTimeout("bookTimer(time)",1000);
+			if (restTime < 0){
+				jQuery('#bookEnd').foundation('reveal', 'open');
+			}
+			else{
+				minutes = Math.floor(restTime / 60000);
+				secondes = Math.round((restTime - minutes)/1000) % 60;
+				timeHTML = minutes + " min " + secondes + " sec";
+				document.getElementById("timeBookVelo").innerHTML = timeHTML;
+				setTimeout("bookTimer(time)",1000);
+			}
 		}
 
 	</script>
@@ -251,6 +257,12 @@ $def with (session)
 		<a class="alert button">Annuler la réservation</a> 
 	</div>
 
+	<div id="bookEnd" class="reveal-modal" data-reveal>
+		<h2>Vous avez dépassé le temps imparti</h2>
+		<p class="lead">Vous aviez 5 minutes pour prendre le vélo, vous allez avoir un blâme</span></p>
+		<a class="close-reveal-modal">&#215;</a>
+	</div>
+
 	<div id="takeOk" class="reveal-modal" data-reveal>
 		<h2>Vous avez un vélo en cours d'utilisation</h2>
 		<p>Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
@@ -267,3 +279,4 @@ $def with (session)
 </body>
 
 </html>
+		       					if (address.status == "OK"){

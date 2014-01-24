@@ -1,5 +1,5 @@
 #This file is the front controller
-import web
+import web, model
 import authentication
 import view, config
 from view import render
@@ -51,8 +51,7 @@ class book:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			model.bookVelo(session.user_id, veloId) #modifier etat de l'util en reservation + compteur pour 5min
-			velov_tasks
+			#model.bookVelo(session.user_id, veloId) #modifier etat de l'util en reservation + compteur pour 5min
 			return "OK"
 		return "NO"
 
