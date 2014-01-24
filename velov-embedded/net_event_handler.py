@@ -39,16 +39,16 @@ class NetworkEventHandler(EventHandlerInterface):
 			self._sendAnswer(False)
 			return False
 		# Happy ending
-		self._sendAnswer(True)
+		self._sendAnswer(server_msg, True)
 		return True
 
 	def _sendAnswer(self, server_msg, ans):
 		ans_str = "REP " # "REPly" command
 		if (ans):
-			ans_str = "OK"
+			ans_str += "OK "
 		else:
-			ans_str = "NOK"
-		ans_str += self._serv_com.getTimestamp() + " " + self._se_state.GetState()
+			ans_str += "NOK "
+		ans_str += str(int(round(float(self._serv_com.getTimestamp())))) + " " + self._se_state.GetState()
 		server_msg.socket.sendall(ans_str)
 		server_msg.socket.shutdown(SHUT_RDWR) # Necessary to actually close the connection, close() waits for GC to close
 		server_msg.socket.close()
