@@ -4,6 +4,9 @@ var sd = require('./shared_data')
 var t = sd.TABLE_NAMES
 var TASK_STATES_CODES = sd.TASK_STATES_CODES
 var netw = require('./network')
+
+var server = require('./server')
+
 var check_for_tasks = function (db) {
 	db.select_query(t['t'], ['*'], ['task_state_id'], [TASK_STATES_CODES['todo']], null, function (err, result) {
 		
@@ -80,6 +83,8 @@ var process_chg_state_velov_reply = function (reply_data, original_data) {
 					register_user_action(true, reply_data, original_data)
 				}
 			})
+			// Register the new state of the velov
+			server.update_velov_state_to(original_data.task.velov_id, reply_data.params[2], reply_data.params[1])
 		} else if (reply_data.params[0] == "NOK") {
 			console.log("Velov answered NOK")
 			sd.pgsql.update_query(t['t'], ['task_state_id'], [TASK_STATES_CODES['failure']], ['id'], [original_data.task.id], null, function (err, result) {
