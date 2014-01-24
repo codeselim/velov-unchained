@@ -9,7 +9,8 @@ web.config.debug = False
 urls = (
     '/', 'index',
     '/logout', 'logout',
-    '/book', 'book'
+    '/book', 'book',
+    '/take', 'take'
 )
 
 app = web.application(urls, globals())
@@ -53,6 +54,14 @@ class book:
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
 			#modifier etat de l'util en reservation + compteur pour 5min
+			return "OK"
+		return "NO"
+
+class take:
+	def POST(self):
+		web.header("Content-Type", "text/plain") 
+		if authentication.is_logged(session):
+			#enregistrer dans la BDD
 			return "OK"
 		return "NO"
 
