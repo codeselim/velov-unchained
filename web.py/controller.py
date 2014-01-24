@@ -9,7 +9,8 @@ web.config.debug = False
 urls = (
     '/', 'index',
     '/logout', 'logout',
-    '/book', 'book'
+    '/book', 'book',
+    '/take', 'take'
 )
 
 app = web.application(urls, globals())
@@ -52,6 +53,14 @@ class book:
 		if authentication.is_logged(session):
 			model.book(UserId, veloId) #modifier etat de l'util en reservation + compteur pour 5min
 			velov_tasks
+			return "OK"
+		return "NO"
+
+class take:
+	def POST(self):
+		web.header("Content-Type", "text/plain") 
+		if authentication.is_logged(session):
+			#enregistrer dans la BDD
 			return "OK"
 		return "NO"
 

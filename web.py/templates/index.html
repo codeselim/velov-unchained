@@ -106,7 +106,6 @@ $def with (session)
 				map: googleMap,
 				title: "Hello World !"
 			});
-			console.log(velo);
 
 			$if session:
 				var contentString = writeContentString(velo,"$session['user_login']")
@@ -126,8 +125,8 @@ $def with (session)
 
 		function writeContentString(velo,util){
 			return '<h6>'+velo.nameVelo+'</h6>'+
-				'<a onclick=bookEvent(velo'+velo.nameVelo+',"'+util+'") class="button">Réserver</a>&nbsp'+
-				'<a href="#" class="button">Prendre</a>';
+				'<a onclick=bookEvent(velo'+velo.nameVelo+') class="button">Réserver</a>&nbsp'+
+				'<a onclick=takeEvent(velo'+velo.nameVelo+') class="button">Prendre</a>';
 		}
 
 		function drawZones(zone){
@@ -166,10 +165,11 @@ $def with (session)
 		       				data: 'latlng='+velo.lat+','+velo.long +'&sensor=true',
 		       				dataType: "json",
 		       				success: function(address){
-		       					console.log(address);
 		       					if (address.status == "OK"){
 		       						jQuery('#addressVelo').html(address.results[0].formatted_address);
-		       						console.log(address.results[0].formatted_address);
+		       						time = new Date();
+		       						time = time.getTime() + 300000;
+		       						bookTimer(time);
 		       					}
 		       					else{
 		       						jQuery('#addressVelo').html("Adresse non trouvée");
@@ -179,6 +179,30 @@ $def with (session)
 		       		}
 		       	}
 		    });
+		}
+
+		function takeEvent(velo){
+			jQuery.ajax({
+				url: '/take',
+				type: 'POST',
+				data: 'velo=' + velo,
+				dataType: "text",
+				success: function(data){
+					if (data == "OK"){
+		       			jQuery('#takeOk').foundation('reveal', 'open');
+		       		}
+				}
+			});
+		}
+
+		function bookTimer(time) {
+			now = new Date();
+			restTime = (time - now.getTime());
+			minutes = Math.floor(restTime / 60000);
+			secondes = Math.round((restTime - minutes)/1000) % 60;
+			timeHTML = minutes + " min " + secondes + " sec";
+			document.getElementById("timeBookVelo").innerHTML = timeHTML;
+			setTimeout("bookTimer(time)",1000);
 		}
 
 	</script>
@@ -222,9 +246,14 @@ $def with (session)
 	<div id="bookOk" class="reveal-modal" data-reveal>
 		<h2>Vous avez réservé un vélo</h2>
 		<p class="lead">Il est situé <span id="addressVelo"></span></p>
-		<p class="lead">Il vous reste ... sec pour prendre le vélo</p>
-		<a class="button">Prendre maintenant</a>
+		<p class="lead">Il vous reste <span id="timeBookVelo"></span> pour prendre le vélo</p>
+		<a onclick="takeEvent()" class="button">Prendre maintenant</a>
 		<a class="alert button">Annuler la réservation</a> 
+	</div>
+
+	<div id="takeOk" class="reveal-modal" data-reveal>
+		<h2>Vous avez un vélo en cours d'utilisation</h2>
+		<p>Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
 	</div>
 
 	<div id="googleMap"/>
