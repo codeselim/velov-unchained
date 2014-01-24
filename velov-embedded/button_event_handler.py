@@ -16,7 +16,7 @@ class ButtonEventHandler(EventHandlerInterface):
 			self._err_msg = "Le vélo n'est pas dévérouillable"
 			self._serv_com.sendStatusChg(self._se_state.GetState())
 			return False
-		if self._serv_com.sendStatusChg(self._se_state.GetState()):
+		if self._serv_com.sendStatusChg(SystemState.Used):
 			self._se_state.setState(SystemState.Used)
 			return True
 		self._err_msg = "On n'a pas pu prévenir le PC"
