@@ -61,5 +61,5 @@ class NetComToServerModule:
 				return True
 			return False
 		except Exception, e:
-			self._print_func("Echec de la demande de délocking au serveur % s" % str(e))
+			self._print_func("Echec de la demande de délocking au serveur %s" % str(e))
 			return False
