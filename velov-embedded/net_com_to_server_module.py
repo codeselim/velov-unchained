@@ -60,6 +60,6 @@ class NetComToServerModule:
 			if ans_words[0] == "OK":
 				return True
 			return False
-		except:
-			self._print_func("Echec de la demande de délocking au serveur")
+		except Exception, e:
+			self._print_func("Echec de la demande de délocking au serveur % s" % str(e))
 			return False
