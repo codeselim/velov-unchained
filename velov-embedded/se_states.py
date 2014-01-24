@@ -48,7 +48,7 @@ class SystemState:
 				Unknown		: (Used, Stolen, Unusable, Reserved, Unlockable, Available, Off)
 	}
 
-	def __init__(self, default_state, print_func, clean_func):
+	def __init__(self, default_state, print_func, clean_func, serv_com):
 		"""
 		Initialisation
 		"""
@@ -56,6 +56,7 @@ class SystemState:
 		self._print_func = print_func
 		self._clean_func = clean_func
 		self._timer = None
+		self._serv_com = serv_com
 
 	def setState(self, new_state):
 		"""
@@ -82,6 +83,7 @@ class SystemState:
 
 	def _relock(self):
 		self.setState(SystemState.Available)
+		self._serv_com.sendStatusChg(self._state)
 
 	def _unlockable_trigger(self):
 		"""

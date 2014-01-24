@@ -19,6 +19,8 @@ from fifo_itc import FifoITC
 from msg import Msg, MsgType, MsgWithSocket
 from cmd_interpreter_interface import CmdInterpreterInterface
 from button_cmd_interpreter import ButtonCmdInterpreter
+from locker_cmd_interpreter import LockerCmdInterpreter
+
 
 SERVER_PORT = 5000
 SERVER_HOST = "localhost"
@@ -90,6 +92,7 @@ class ThreadSim(ThreadBase):
 		# Dictionnaire contenant les interpréteur
 		self._interpreters = {}
 		self._interpreters["b"] = ButtonCmdInterpreter()
+		self._interpreters["l"] = LockerCmdInterpreter()
 		# On met en place le serveur réseau
 		NetworkServerHandler.fifo = fifo
 		self._server_thread = NetworkServerThread(SERVER_PORT, SERVER_HOST, NetworkServerHandler)

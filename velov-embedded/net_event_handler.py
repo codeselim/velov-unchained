@@ -36,19 +36,18 @@ class NetworkEventHandler(EventHandlerInterface):
 		else:
 			# Message inconnue
 			self._err_msg = "Message réseau inconnu"
-			self._sendAnswer(False)
 			return False
 		# Happy ending
 		self._sendAnswer(server_msg, True)
 		return True
 
 	def _sendAnswer(self, server_msg, ans):
-		ans_str = "REP " # "REPly" command
+		ans_str = "REP "
 		if (ans):
 			ans_str += "OK "
 		else:
 			ans_str += "NOK "
-		ans_str += str(int(round(float(self._serv_com.getTimestamp())))) + " " + self._se_state.GetState() + "\tfoo_checksum\n"
+		ans_str += self._serv_com.getTimestamp() + " " + self._se_state.GetState() + "\tfoo_checksum\n"
 		server_msg.socket.sendall(ans_str)
 		server_msg.socket.shutdown(SHUT_RDWR) # Necessary to actually close the connection, close() waits for GC to close
 		server_msg.socket.close()
