@@ -21,7 +21,7 @@ class NetComToServerModule:
 
 	def __init__(self, print_func):
 		# On génère aléatoirement l'ID du vélo
-		self._id = random.randint(0, 1000000)
+		self._id = 1
 		# Fonction pour afficher des messages
 		self._print_func = print_func
 
