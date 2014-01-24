@@ -7,6 +7,7 @@ var crypto = require('crypto')
 var FRAME_SEPARATOR = "\n"
 var DATA_SEPARATOR = "\t"
 var CMD_LEN = 3 // length of the string expressing the  "command" in a frame from the velov
+var MAX_VELOV_MSG_OR_REP_RETRY = 60 // retry 20 times to contact a given velov before giving up
 
 var sha1 = function (string) {
 	var sha1sum = crypto.createHash('sha1')
@@ -21,6 +22,10 @@ var message_velov = function (data_to_send, callback, tries_count) {
 
 	if (typeof tries_count == "undefined" || tries_count === null) {
 		tries_count = 1
+	};
+
+	if (tries_count > MAX_VELOV_MSG_OR_REP_RETRY) {
+		callback(null, data_to_send, false)
 	};
 
 	var message = create_frame_from_data(data_to_send)
@@ -54,7 +59,32 @@ var message_velov = function (data_to_send, callback, tries_count) {
 	})
 }
 
-var decode = function (frame) {
+var reply_velov = function (stream, data_to_send, callback, tries_count) {
+
+	if (typeof tries_count == "undefined" || tries_count === null) {
+		tries_count = 1
+	};
+
+	if (tries_count > MAX_VELOV_MSG_OR_REP_RETRY) {
+		callback(false, data_to_send)
+	};
+
+	var message = create_frame_from_data(data_to_send)
+	stream.write(message, null, function () {
+		console.log('message_velov: Data sent to velov.')
+		callback(true, data_to_send)
+	})
+
+	stream.on("error", function () { 
+		console.error("message_velov:", new Date().toString() + "Could not send message " + message + "to velov " + data_to_send.velov_id + ", trying again in 10 seconds."); 
+		setTimeout(function () {
+			message_velov(stream, data_to_send, callback, tries_count+1)
+		}, VELOV_MESSAGE_FAILED_RETRY_TIME)
+	})
+
+}
+
+var decode = function (frame, is_rep) {
 	var data = get_data_from_frame(frame)
 
 	if (DBG) {
@@ -68,6 +98,8 @@ var decode = function (frame) {
 		  'type': type
 		, 'cmd': cmd
 		, 'params': params
+		, 'id': (!is_rep) ? parseInt(params[0]) : null // When it's a reply, is not specified
+		, 'time': (!is_rep) ? parseInt(params[1]) : parseInt(params[0]) // When it's a reply, is not specified, thus timestamp is 2nd param
 		, 'raw_frame': frame // Can be useful in some cases
 	}
 
@@ -126,7 +158,12 @@ var check_checksum = function (frame) {
 
 
 var create_frame_from_data = function (data) {
-	var frame = data.cmd + " " + data.velov_id + " " + Date.now() + " " + data.params.join(" ")
+	if (data.cmd === "REP") {
+		// Special REP frame is special
+		var frame = data.cmd + " " + data.confirm + data.params.join(" ") + " " + Date.now()
+	} else {
+		var frame = data.cmd + ((data.velov_id) ? " " + data.velov_id : "") + " " + Date.now() + " " + data.params.join(" ")
+	}
 	var c = checksum(frame)
 	frame += "\t" + c + "\n"
 	if (DBG) {
@@ -136,6 +173,7 @@ var create_frame_from_data = function (data) {
 }
 
 exports.message_velov = message_velov
+exports.reply_velov = reply_velov
 exports.create_frame_from_data = create_frame_from_data
 exports.checksum = checksum
 exports.FRAME_SEPARATOR = FRAME_SEPARATOR

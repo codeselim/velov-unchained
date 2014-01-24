@@ -9,8 +9,9 @@ def is_logged(session):
 	else:
 		return False
 
-def register_login(session):
+def register_login(session,name):
 	session.login = 1
+	session.name = name
 
 def logout(session):
 	session.login = 0

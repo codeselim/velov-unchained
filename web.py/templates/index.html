@@ -1,4 +1,4 @@
-$def with (util)
+$def with (session)
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,13 +18,13 @@ $def with (util)
 
 		//veloVs à charger dans la BDD
 		//TODO : format d'export
-		var velo1 = JSON.parse('{"lat": 45.75,"long": 4.85,"nameVelo": "PCV01","etat": 0}');
-		var velo2 = JSON.parse('{"lat": 45.76,"long": 4.85,"nameVelo": "PCV02","etat": 0}');
-		var velo3 = JSON.parse('{"lat": 45.75,"long": 4.86,"nameVelo": "PCV03","etat": 0}');
+		var veloPCV01 = JSON.parse('{"lat": 45.75,"long": 4.85,"nameVelo": "PCV01","etat": 0}');
+		var veloPCV02 = JSON.parse('{"lat": 45.76,"long": 4.85,"nameVelo": "PCV02","etat": 0}');
+		var veloPCV03 = JSON.parse('{"lat": 45.75,"long": 4.86,"nameVelo": "PCV03","etat": 0}');
 		var veloVs = [];
-		veloVs.push(velo1);
-		veloVs.push(velo2);
-		veloVs.push(velo3);
+		veloVs.push(veloPCV01);
+		veloVs.push(veloPCV02);
+		veloVs.push(veloPCV03);
 
 		//Zones interdites
 		var zone1 = JSON.parse('[{"lat": 45.772552,"long": 4.854326},{"lat": 45.772911,"long": 4.85836},{"lat": 45.784764,"long": 4.85939},{"lat": 45.783626,"long": 4.852009},{"lat": 45.780873,"long": 4.847374},{"lat": 45.777371,"long": 4.844885}]');
@@ -108,9 +108,12 @@ $def with (util)
 			});
 			console.log(velo);
 
-			var contentString = '<h6>'+velo.nameVelo+'</h6>'+
-			'<a href="#" class="button">Réserver</a>&nbsp'+
-			'<a href="#" class="button">Prendre</a>';
+			$if session:
+				var contentString = writeContentString(velo,"$session['name']")
+			$else:
+				var contentString = '<h6>'+velo.nameVelo+'</h6>'+
+				'<a disabled class="button">Réserver</a>&nbsp'+
+				'<a disabled class="button">Prendre</a>';
 
 			var infowindow = new google.maps.InfoWindow({
 				content: contentString
@@ -119,6 +122,12 @@ $def with (util)
 			google.maps.event.addListener(marker, 'click', function() {
 				infowindow.open(googleMap,marker);
 			});
+		}
+
+		function writeContentString(velo,util){
+			return '<h6>'+velo.nameVelo+'</h6>'+
+				'<a onclick=bookEvent(velo'+velo.nameVelo+',"'+util+'") class="button">Réserver</a>&nbsp'+
+				'<a href="#" class="button">Prendre</a>';
 		}
 
 		function drawZones(zone){
@@ -142,6 +151,36 @@ $def with (util)
 
 		}
 
+		function bookEvent(velo) {
+			jQuery.ajax({
+		       	url: '/book', // La ressource ciblée
+		       	type: 'POST', // Le type de la requête HTTP.
+		       	data: 'velo=' + velo,
+		       	dataType: "text",
+		       	success: function(data){
+		       		if (data == "OK"){
+		       			jQuery('#bookOk').foundation('reveal', 'open');
+		       			jQuery.ajax({
+		       				url: 'http://maps.googleapis.com/maps/api/geocode/json',
+		       				type: 'GET',
+		       				data: 'latlng='+velo.lat+','+velo.long +'&sensor=true',
+		       				dataType: "json",
+		       				success: function(address){
+		       					console.log(address);
+		       					if (address.status == "OK"){
+		       						jQuery('#addressVelo').html(address.results[0].formatted_address);
+		       						console.log(address.results[0].formatted_address);
+		       					}
+		       					else{
+		       						jQuery('#addressVelo').html("Adresse non trouvée");
+		       					}
+		       				}
+		       			});
+		       		}
+		       	}
+		    });
+		}
+
 	</script>
 </head>
 <body>
@@ -156,28 +195,37 @@ $def with (util)
 		<section class="top-bar-section">
 			<!-- Right Nav Section -->
 			<ul class="4-large columns right">
-				$if util:
+				$if session:
 					<li class="name">
-						<a href="#">Bonjour $util</a>
+						<a>Bonjour $session['name']</a>
 					</li>
-				<li class="has-dropdown">
-					$if util:
-						<a href="#" class="button">Déconnexion</a>
-					$else:
-						<a href="#" class="button">Connexion</a>
-					<ul class="dropdown">
-						<li>
-							<form method="post" action="#">
-								<input type="text" name="login" placeholder="Login" />
-								<input type="password" name="password" placeholder="Password" />
-								<input type="submit" name="submitlogin" value="Se connecter">
-							</form>
-						</li>	        	
-					</ul>
-				</li>
+					<li>
+						<a href="/logout" class="button">Déconnexion</a>
+					</li>
+				$else:
+					<li class="has-dropdown">
+						<a class="button">Connexion</a>
+						<ul class="dropdown">
+							<li>
+								<form method="post" action="">
+									<input type="text" name="login" placeholder="Login" />
+									<input type="password" name="password" placeholder="Password" />
+									<input type="submit" name="submitlogin" value="Se connecter">
+								</form>
+							</li>	        	
+						</ul>
+					</li>
 			</ul>
 		</section>
 	</nav>
+
+	<div id="bookOk" class="reveal-modal" data-reveal>
+		<h2>Vous avez réservé un vélo</h2>
+		<p class="lead">Il est situé <span id="addressVelo"></span></p>
+		<p class="lead">Il vous reste ... sec pour prendre le vélo</p>
+		<a class="button">Prendre maintenant</a>
+		<a class="alert button">Annuler la réservation</a> 
+	</div>
 
 	<div id="googleMap"/>
 
