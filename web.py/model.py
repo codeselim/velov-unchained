@@ -13,4 +13,7 @@ def authenticate(variables):
 		result =  dict(login_validated=True, user_id=row.id,  user_login=row.login, firstname=row.firstname, lastname=row.lastname, email=row.email, tel_portable=row.tel_portable)
 		return result
 	else :
-		return dict(login_validated=False)
+		return dict(login_validated=False, user_id=0,  user_login=0, firstname=0, lastname=0, email=0, tel_portable=0)
+
+#def takeVelo(userID, veloID):
+

@@ -51,7 +51,7 @@ class book:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			model.book(UserId, veloId) #modifier etat de l'util en reservation + compteur pour 5min
+			model.bookVelo(session.user_id, veloId) #modifier etat de l'util en reservation + compteur pour 5min
 			velov_tasks
 			return "OK"
 		return "NO"
@@ -60,7 +60,7 @@ class take:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#enregistrer dans la BDD
+			model.takeVelo(session.user_id, veloId)
 			return "OK"
 		return "NO"
 
