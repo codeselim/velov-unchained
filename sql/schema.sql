@@ -99,33 +99,9 @@ ALTER TABLE ONLY task_states ALTER COLUMN id SET DEFAULT nextval('task_states_id
 
 -- --------------------------------- ---------------------------------
 
-CREATE TABLE velov_tasks (
-    id integer NOT NULL,
-    type integer NOT NULL,
-    user_id integer, --  This column can be NULL because a task can be not related to a user (set to unusuable / maintenance, for instance (unless we have special users for maintenance guys... will see))
-    velov_id integer NOT NULL,
-    task_state_id integer NOT NULL
-);
-ALTER TABLE public.velov_tasks OWNER TO velovunchained;
-CREATE SEQUENCE velov_tasks_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-ALTER TABLE ONLY velov_tasks ADD CONSTRAINT tasks_pk PRIMARY KEY (id);
-ALTER TABLE public.velov_tasks_id_seq OWNER TO velovunchained;
-ALTER SEQUENCE velov_tasks_id_seq OWNED BY velov_tasks.id;
-ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_type_fk FOREIGN KEY (type) REFERENCES task_types(id);
-ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_state_id_fk FOREIGN KEY (task_state_id) REFERENCES task_states(id);
-ALTER TABLE ONLY velov_tasks ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE ONLY velov_tasks ADD CONSTRAINT velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
-ALTER TABLE ONLY velov_tasks ALTER COLUMN id SET DEFAULT nextval('velov_tasks_id_seq'::regclass);
-
--- --------------------------------- ---------------------------------
-
 CREATE TABLE velovs (
-    id integer NOT NULL
+    id integer NOT NULL,
+    inaccessibilty_report_nb integer NOT NULL DEFAULT 0
 );
 ALTER TABLE public.velovs OWNER TO velovunchained;
 CREATE SEQUENCE velovs_id_seq
@@ -163,6 +139,30 @@ ALTER TABLE ONLY velov_location_history ADD CONSTRAINT velov_loc_velov_id_fk FOR
 ALTER TABLE ONLY velov_location_history ALTER COLUMN id SET DEFAULT nextval('velov_location_history_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
+
+CREATE TABLE velov_tasks (
+    id integer NOT NULL,
+    type integer NOT NULL,
+    user_id integer, --  This column can be NULL because a task can be not related to a user (set to unusuable / maintenance, for instance (unless we have special users for maintenance guys... will see))
+    velov_id integer NOT NULL,
+    task_state_id integer NOT NULL,
+    action_time TIMESTAMP NOT NULL
+);
+ALTER TABLE public.velov_tasks OWNER TO velovunchained;
+CREATE SEQUENCE velov_tasks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT tasks_pk PRIMARY KEY (id);
+ALTER TABLE public.velov_tasks_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE velov_tasks_id_seq OWNED BY velov_tasks.id;
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_type_fk FOREIGN KEY (type) REFERENCES task_types(id);
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT task_state_id_fk FOREIGN KEY (task_state_id) REFERENCES task_states(id);
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY velov_tasks ADD CONSTRAINT velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
+ALTER TABLE ONLY velov_tasks ALTER COLUMN id SET DEFAULT nextval('velov_tasks_id_seq'::regclass);
 
 CREATE TABLE states (
     id integer NOT NULL,
@@ -266,7 +266,6 @@ ALTER SEQUENCE user_renting_sessions_id_seq OWNED BY user_renting_sessions.id;
 ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_pk PRIMARY KEY (id);
 ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
 ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_state_id_fk FOREIGN KEY (action_id) REFERENCES user_actions(id);
 ALTER TABLE ONLY user_renting_sessions ALTER COLUMN id SET DEFAULT nextval('user_renting_sessions_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------

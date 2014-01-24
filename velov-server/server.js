@@ -16,10 +16,11 @@ var STATES_CODES = {}
 var DBG = true
 var sd = require('./shared_data')
 var t = sd.TABLE_NAMES // handy shortcut, for even shorter use
+var db = sd.pgsql
 
 var decode = netw.decode
 
-var action_localization = function (frame_data, db) {
+var action_localization = function (frame_data, stream) {
 	var tile_index = get_tile_from_gps_coords(frame_data.params[2], frame_data.params[3])
 	db.select_query
 	db.insert_query(t['loc_histo'], ['velov_id', 'time', 'tile_index', 'lat', 'long'], [frame_data.params[0], frame_data.params[1], tile_index, frame_data.params[1], frame_data.params[2]], function (err, result) {
@@ -27,10 +28,104 @@ var action_localization = function (frame_data, db) {
 	})
 }
 
-var action_change_state = function (frame_data, db) {
-	db.insert_query(t['sh'], ['velov_id', 'state_id', 'time'], [frame_data.params[0], STATES_CODES[frame_data.params[2]], frame_data.params[1]], function (err, result) {
-		console.log("Query has been executed.", err)
-	})
+var action_change_state = function (frame_data, stream) {
+	if (frame_data.params[2] === 'USE') {
+		// First, select the user that asked to lock this velov last (he's the one who's unlocking the velov right now)
+		// Unless he's very unlucky and someone has beaten him and taken his velov from him!
+		db.text_query(
+			'SELECT user_id FROM '+ t['uah'] + ' WHERE velov_id = ' + frame_data.id + "ORDER BY id DESC LIMIT 1",
+			function (err, result) {
+				if (err) {
+					console.error("Could not retrieve the user who asked to unlock this velov. error:", err)
+				};
+				if (!result.rows.length) {
+					console.error("Somehow, nobody seems to have asked to unlock this bike but the velov is still asking to be unlocked")
+					//TODO : Maybe somehow refuse to the velov to change state ?
+				} else {
+					var user_id = result.rows[0].user_id
+					sd.pgsql.insert_query(
+						t['uah'],
+						['velov_id', 'user_id', 'time', 'action_id'],
+						[frame_data.id, user_id, frame_data.time, sd.USER_ACTION_CODES['unlock']],
+						function (err2, result2) {
+							if (err) {
+								console.error("ERR somethign went wrong while inserting the new user action")
+							} else {
+								sd.pgsql.insert_query(
+									t['urs'],
+									['user_id', 'velov_id', 'time_start'],
+									[user_id, frame_data.id, frame_data.time]
+								)
+								update_velov_state_to(frame_data.id, frame_data.params[2], frame_data.time)
+							}
+						}
+					)				
+				}
+			}
+		)
+	} else if (frame_data.params[2] === 'AVA') {
+		// User asked to release the velov
+		// First, let us see if it is allowed where the velov is currently, then, register that
+		db.text_query(
+			'SELECT user_id, id FROM '+ t['urs'] + ' WHERE velov_id = ' + frame_data.id + " AND time_end IS NULL ORDER BY id DESC LIMIT 1",
+			function (err, result) {
+				if (err || !result.rows.length) {
+					console.error("Could not retrieve the user who is currently renting this velov error:", err, result)
+					// Refuse lock
+					netw.reply_velov(stream, {cmd: "REP", confirm: 'NOK', params:[]})
+				} else {
+					var user_id = result.rows[0].user_id
+					var renting_session_id = result.rows[0].id
+					sd.pgsql.insert_query(
+						t['uah'],
+						['velov_id', 'user_id', 'time', 'action_id'],
+						[frame_data.id, user_id, frame_data.time, sd.USER_ACTION_CODES['ask_lock']],
+						function (err2, result2) {
+							if (err) {
+								console.error("ERR somethign went wrong while inserting the new user action")
+							} else {
+								//TODO: Here, add something that checks for forbidden zones and answers NO if in such a zone
+								var forbidden = false
+								if (forbidden) {
+
+								} else {
+									netw.reply_velov(stream, {cmd: "REP", confirm: 'OK', params:[]}, function (success, original_data) {
+										if (success) {
+											stream.end()
+											stream.destroy()
+											sd.pgsql.update_query(
+												t['urs'],
+												['time_end'],
+												[frame_data.time],
+												['id'],
+												[renting_session_id]
+											)
+											update_velov_state_to(frame_data.id, frame_data.params[2], frame_data.time)
+										} else {
+											console.error("Could not reply to velov to allow unlocking...")
+										}
+									})
+								}
+							}
+						}
+					)				
+				}
+			}
+		)
+	} else {
+		update_velov_state_to(frame_data.id, frame_data.params[2], frame_data.time)
+	}
+}
+
+var update_velov_state_to = function (velov_id, new_state_codename, time) {
+	db.insert_query(
+		t['sh'],
+		['velov_id', 'state_id', 'time'],
+		[velov_id, STATES_CODES[new_state_codename], time],
+		function (err, result) {
+			console.log("Velov", velov_id, "has been registered as in state", new_state_codename)
+		}
+	)
 }
 
 var frame_actions = {
@@ -38,12 +133,12 @@ var frame_actions = {
 	, "CHG": action_change_state
 }
 
-var frame_action = function (frame_data, db) {
+var frame_action = function (frame_data, stream) {
 	if (!(frame_data.type in frame_actions)) {
 		console.error("Received command of type ", frame_data.type, ", not recognized, doing nothing.")
 		return false
 	}
-	return frame_actions[frame_data.type](frame_data, db)
+	return frame_actions[frame_data.type](frame_data, stream)
 }
 
 function start (db, port) {
@@ -77,7 +172,7 @@ function start (db, port) {
 					var frame = buffer.substr(0, pos)
 					buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
 					var frame_data = decode(frame)
-					frame_action(frame_data, db)
+					frame_action(frame_data, stream)
 				};
 				console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
 			});
