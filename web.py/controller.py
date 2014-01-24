@@ -24,7 +24,7 @@ class index:
 			#TODO if the user is logged-in we should display the logout
 		else :
 			print("the user is not logged in")
-		return render.index(None)
+		return render.index(None) #
 
 	def POST(self):
 		print("POST Submitted")

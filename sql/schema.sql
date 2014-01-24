@@ -82,7 +82,8 @@ ALTER TABLE ONLY velov_tasks ALTER COLUMN id SET DEFAULT nextval('velov_tasks_id
 -- --------------------------------- ---------------------------------
 
 CREATE TABLE velovs (
-    id integer NOT NULL
+    id integer NOT NULL,
+    inaccessibilty_report_nb integer NOT NULL DEFAULT 0
 );
 ALTER TABLE public.velovs OWNER TO velovunchained;
 CREATE SEQUENCE velovs_id_seq
