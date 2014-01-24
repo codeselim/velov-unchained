@@ -9,6 +9,8 @@ def authenticate(variables):
 	entries = config.DB.select('users', variables, where="login=$login and password=$password and is_disabled=FALSE")
 	nb_entries = len(entries)
 	if nb_entries == 1 :
-		return True
+		row = entries[0]
+		result =  dict(login_validated=True, user_id=row.id,  user_login=row.login, firstname=row.firstname, lastname=row.lastname, email=row.email, tel_portable=row.tel_portable)
+		return result
 	else :
-		return False
+		return dict(login_validated=False)

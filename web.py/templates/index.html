@@ -109,7 +109,7 @@ $def with (session)
 			console.log(velo);
 
 			$if session:
-				var contentString = writeContentString(velo,"$session['name']")
+				var contentString = writeContentString(velo,"$session['user_login']")
 			$else:
 				var contentString = '<h6>'+velo.nameVelo+'</h6>'+
 				'<a disabled class="button">Réserver</a>&nbsp'+
@@ -197,7 +197,7 @@ $def with (session)
 			<ul class="4-large columns right">
 				$if session:
 					<li class="name">
-						<a>Bonjour $session['name']</a>
+						<a>Bonjour $session['user_login']</a>
 					</li>
 					<li>
 						<a href="/logout" class="button">Déconnexion</a>
