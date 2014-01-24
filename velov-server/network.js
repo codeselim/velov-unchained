@@ -47,6 +47,7 @@ var message_velov = function (data_to_send, callback, tries_count) {
 			var frame = buffer.substr(0, pos)
 			buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
 			var reply_data = decode(frame)
+			console.log("messave_velov(): Launching callback")
 			callback(reply_data, data_to_send)
 		};
 	});

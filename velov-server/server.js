@@ -199,3 +199,4 @@ function start (db, port) {
 }
 
 exports.start = start
+exports.update_velov_state_to = update_velov_state_to
