@@ -53,13 +53,14 @@ class NetComToServerModule:
 		try:
 			self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self._socket.connect((NET_HOST, NET_PORT))
-			self._socket.sendall("RLK " + self.getID() + " " + self.getTimestamp() + "\t" + "foo_checksum" + "\n")
+			self._socket.sendall("CHG " + str(self.getID()) + " " + self.getTimestamp() + " RLK" + "\t" + "foo_checksum" + "\n")
 			ans = self._socket.recv(4096)
 			ans_words = ans.split()
 			self._socket.close()
-			if ans_words[0] == "OK":
-				return True
+			if len(ans_words) > 2:
+				if ans_words[1] == "OK":
+					return True
 			return False
-		except Exception, e:
+		except Exception as e:
 			self._print_func("Echec de la demande de délocking au serveur %s" % str(e))
 			return False

@@ -18,6 +18,7 @@ class LockerEventHandler(EventHandlerInterface):
 		# On demande l'authorisation au vélo
 		if self._serv_com.reqLockAth():
 			self._se_state.setState(SystemState.Available)
+			self._serv_com.sendStatusChg(SystemState.Available)
 			return True
 		self._err_msg = "On n'a pas eu l'authrisation du serveur"
 		return False

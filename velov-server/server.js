@@ -63,7 +63,7 @@ var action_change_state = function (frame_data, stream) {
 				}
 			}
 		)
-	} else if (frame_data.params[2] === 'AVA') {
+	} else if (frame_data.params[2] === 'RLK') {
 		// User asked to release the velov
 		// First, let us see if it is allowed where the velov is currently, then, register that
 		db.text_query(
@@ -100,7 +100,6 @@ var action_change_state = function (frame_data, stream) {
 												['id'],
 												[renting_session_id]
 											)
-											update_velov_state_to(frame_data.id, frame_data.params[2], frame_data.time)
 										} else {
 											console.error("Could not reply to velov to allow unlocking...")
 										}
