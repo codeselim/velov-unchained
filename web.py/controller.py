@@ -53,6 +53,7 @@ class book:
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
 			#modifier etat de l'util en reservation + compteur pour 5min
+			velov_tasks
 			return "OK"
 		return "NO"
 
