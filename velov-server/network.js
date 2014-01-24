@@ -40,7 +40,7 @@ var message_velov = function (data_to_send, callback, tries_count) {
 
 	var buffer = ""
 	sock.addListener("data", function (reply_frame_buffer) {
-		console.log(Date.now(), "Velov said:", reply_frame_buffer)
+		console.log(Date.now(), "Velov said:", reply_frame_buffer.toString())
 		buffer += reply_frame_buffer
 		var pos = -1
 		while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
