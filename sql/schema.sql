@@ -61,6 +61,20 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 -- --------------------------------- ---------------------------------
 
+CREATE TABLE zones_interdites(
+    id bigint NOT NULL,
+    long double precision NOT NULL,
+    lat double precision NOT NULL,
+    PRIMARY KEY(id, long, lat)
+);
+ALTER TABLE public.zones_interdites OWNER TO velovunchained;
+CREATE SEQUENCE zones_interdites_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+---------------------------------------------------------------------
 
 CREATE TABLE task_types (
     id integer NOT NULL,
