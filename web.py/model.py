@@ -26,4 +26,7 @@ def getZoneInterdites():
 	entries = config.DB.select('zones_interdites')
 	return entries
 
+def getCloseBikes():
+	
+
 

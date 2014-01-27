@@ -66,6 +66,16 @@ INSERT INTO velovs (id) VALUES (2);
 INSERT INTO velovs (id) VALUES (3);
 INSERT INTO velovs (id) VALUES (4);
 INSERT INTO velovs (id) VALUES (5);
+INSERT INTO velovs (id) VALUES (6);
+INSERT INTO velovs (id) VALUES (7);
+INSERT INTO velovs (id) VALUES (8);
+INSERT INTO velovs (id) VALUES (9);
+INSERT INTO velovs (id) VALUES (10);
+INSERT INTO velovs (id) VALUES (11);
+INSERT INTO velovs (id) VALUES (12);
+INSERT INTO velovs (id) VALUES (13);
+INSERT INTO velovs (id) VALUES (14);
+INSERT INTO velovs (id) VALUES (15);
 
 SELECT pg_catalog.setval('velovs_id_seq', 6, true);
 -- ---------------------------------------------- --------------------------------------
