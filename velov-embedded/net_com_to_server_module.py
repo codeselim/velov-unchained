@@ -9,6 +9,7 @@ Communication avec le serveur
 import socket
 import time
 import random
+from gps_module import getCurrentPos
 
 NET_HOST	=	"localhost"
 NET_PORT	=	3000
@@ -64,3 +65,9 @@ class NetComToServerModule:
 		except Exception as e:
 			self._print_func("Echec de la demande de délocking au serveur %s" % str(e))
 			return False
+
+	def sendGpsLoc(self):
+		self.sendData("LOC " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))
+
+	def sendStlMsg(self):
+		self.sendData("STL " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))

@@ -15,6 +15,7 @@ from fifo_itc import FifoITC
 from net_event_handler import NetworkEventHandler
 from button_event_handler import ButtonEventHandler
 from locker_event_handler import LockerEventHandler
+from gps_event_handler import GpsEventHandler
 from msg import MsgType, Msg
 from se_states import SystemState
 from net_com_to_server_module import NetComToServerModule
@@ -38,6 +39,7 @@ class ThreadSE(ThreadBase):
 		self._handlers[MsgType.Net] = NetworkEventHandler(self._state,self._serv_com)
 		self._handlers[MsgType.Button] = ButtonEventHandler(self._state, self._serv_com)
 		self._handlers[MsgType.Locker] = LockerEventHandler(self._state, self._serv_com)
+		self._handlers[MsgType.GpsLoc] = GpsEventHandler(self._state, self._serv_com)
 
 
 	def run(self):
