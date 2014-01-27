@@ -22,3 +22,8 @@ def takeVelo(userID, veloID):
 def bookVelo(userID, veloID):
 	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=6, user_id=userID, velov_id=veloID, action_time=web.SQLLiteral("CURRENT_TIMESTAMP"));	
 
+def getZoneInterdites():
+	entries = config.DB.select('zones_interdites')
+	return entries
+
+
