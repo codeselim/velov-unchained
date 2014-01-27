@@ -10,7 +10,8 @@ urls = (
     '/', 'index',
     '/logout', 'logout',
     '/book', 'book',
-    '/take', 'take'
+    '/take', 'take',
+    '/getCloseBikes', 'getCloseBikes'
 )
 
 app = web.application(urls, globals())
@@ -80,6 +81,19 @@ class logout:
 	def GET(self):
 		authentication.logout(session)
 		raise web.seeother('/')
+
+class getCloseBikes:
+	def POST(self):
+		#i = web.input()
+		#current_lat = i.current_location_lat
+		#current_long = i.current_location_long
+		current_lat = 45.767433
+		current_long = 4.875676
+		bikes = model.getCloseBikes(current_lat, current_long)
+		print "bikes are"
+		print bikes
+		web.header("Content-Type", "text/plain")
+		return "Hello getCloseBikes"	
 
 if __name__ == "__main__":
 	app.run()
