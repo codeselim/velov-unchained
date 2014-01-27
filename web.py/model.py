@@ -1,5 +1,6 @@
 import config
 import web
+import tools
 
 #def listing(**k):
 #    return config.DB.select('items', **k)
@@ -26,7 +27,13 @@ def getZoneInterdites():
 	entries = config.DB.select('zones_interdites')
 	return entries
 
-def getCloseBikes():
-	
+def getCloseBikes(current_lat, current_long):
+	tile_index = tools.tileIndex(current_lat, current_long)
+	search_depth = 3
+	tile_indexes = tools.zonePerimeter(tile_index, search_depth)
+	#results = db.query("SELECT COUNT(*) AS total_users FROM users")
+	#print results[0].total_users # -> prints number of entries in 'users' table
+	return tile_indexes
+
 
 

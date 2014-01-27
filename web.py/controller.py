@@ -85,8 +85,13 @@ class logout:
 class getCloseBikes:
 	def POST(self):
 		#i = web.input()
-		#lat = i.current_location_lat
-		#long = i.current_location_long
+		#current_lat = i.current_location_lat
+		#current_long = i.current_location_long
+		current_lat = 45.767433
+		current_long = 4.875676
+		bikes = model.getCloseBikes(current_lat, current_long)
+		print "bikes are"
+		print bikes
 		web.header("Content-Type", "text/plain")
 		return "Hello getCloseBikes"	
 

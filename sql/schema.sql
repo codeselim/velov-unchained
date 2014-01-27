@@ -33,7 +33,7 @@ CREATE TABLE users (
     id bigint NOT NULL,
     login varchar(120) NOT NULL,
     password varchar(120) NOT NULL,
-    creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    creation_date bigint NOT NULL,
     is_disabled BOOLEAN DEFAULT FALSE,
     firstname varchar(120) NOT NULL,
     lastname varchar(120) NOT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE users (
     ville varchar(45) NOT NULL,
     email varchar(100) NOT NULL,
     tel_portable integer NOT NULL,
-    tel_secondaire integer NULL,
-    membership_exipry_date TIMESTAMP NOT NULL
+    tel_secondaire integer,
+    membership_exipry_date bigint NOT NULL
 );
 ALTER TABLE public.users OWNER TO velovunchained;
 CREATE SEQUENCE users_id_seq
@@ -160,7 +160,7 @@ CREATE TABLE velov_tasks (
     user_id integer, --  This column can be NULL because a task can be not related to a user (set to unusuable / maintenance, for instance (unless we have special users for maintenance guys... will see))
     velov_id integer NOT NULL,
     task_state_id integer NOT NULL,
-    action_time TIMESTAMP NOT NULL
+    action_time bigint NOT NULL
 );
 ALTER TABLE public.velov_tasks OWNER TO velovunchained;
 CREATE SEQUENCE velov_tasks_id_seq
