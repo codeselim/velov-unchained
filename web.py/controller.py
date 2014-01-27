@@ -51,7 +51,9 @@ class book:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#model.bookVelo(session.user_id, veloId) #modifier etat de l'util en reservation + compteur pour 5min
+			#TODO charlotte take the veloID from the post >> i = web.input() ...
+			veloId=1
+			model.bookVelo(session.user_id, veloId)
 			return "OK"
 		return "NO"
 
