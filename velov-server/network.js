@@ -73,7 +73,9 @@ var reply_velov = function (stream, data_to_send, callback, tries_count) {
 	var message = create_frame_from_data(data_to_send)
 	stream.write(message, null, function () {
 		console.log('message_velov: Data sent to velov.')
-		callback(true, data_to_send)
+		if (callback) {
+			callback(true, data_to_send)
+		};
 	})
 
 	stream.on("error", function () { 
