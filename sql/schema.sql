@@ -256,7 +256,7 @@ ALTER SEQUENCE user_action_history_id_seq OWNED BY user_action_history.id;
 ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_pk PRIMARY KEY (id);
 ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_velov_id_fk FOREIGN KEY (velov_id) REFERENCES velovs(id);
 ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_state_id_fk FOREIGN KEY (action_id) REFERENCES user_actions(id);
+ALTER TABLE ONLY user_action_history ADD CONSTRAINT user_action_history_action_id_fk FOREIGN KEY (action_id) REFERENCES user_actions(id);
 ALTER TABLE ONLY user_action_history ALTER COLUMN id SET DEFAULT nextval('user_action_history_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
