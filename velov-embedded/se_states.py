@@ -5,12 +5,21 @@
 """
 
 from threading import Timer
+import time
+import gps_module
 
 
 # Délai pendant lequel le vélo reste débloquable.
 # C'est le temps qu'à l'utilisateur pour le récupérer
 UNLOCKABLE_DELAY	=	30.0		# En secondes
 RESERVED_DELAY		= 	(5.*60.)	# En secondes
+#
+STLN_TIMES			=	(	5.*60.,
+							20.*60.,
+						)
+STLN_DELAYS			=	(	60.0,	# Les 5 premières minutes
+							5.*60., # Les 15 minutes ensuites
+							3.*60.) # Ensuite
 
 
 class SystemState:
@@ -57,7 +66,12 @@ class SystemState:
 		self._print_func = print_func
 		self._clean_func = clean_func
 		self._timer = None
+		self._stln_timer = None
 		self._serv_com = serv_com
+		self._locked_time = None
+		self._prev_pos = []
+		for c in gps_module.getCurrentPos():
+			self._prev_pos.append(c)
 
 	def setState(self, new_state):
 		"""
@@ -67,6 +81,12 @@ class SystemState:
 			return False
 		
 		self._state = new_state
+		# On lance le système anti-vol
+		if (new_state != SystemState.Used) or (new_state != SystemState.Off):
+			self._locked_time = time.time()
+			self._stln_start()
+		else:
+			self._stln_stop()
 		# Si il y a des triggers associés à ce vélo, on les appellent
 		if new_state in SystemState.Triggers:
 			SystemState.Triggers[new_state](self)
@@ -137,6 +157,37 @@ class SystemState:
 		self._timer = Timer(RESERVED_DELAY, self._relock)
 		self._timer.start()
 		self._show_state()
+
+	#
+	# Check le vole
+	def _stln_start(self):
+		# Vérifier si le vélo à bougé
+		i = 0
+		move = False
+		for c in gps_module.getCurrentPos():
+			if c != self._prev_pos[i]:
+				move = True
+			gps_module._prev_pos[i] = c
+			i += 1
+		if move:
+			pass
+			#TODO
+		# On remet le timer
+		i = 0
+		found = False
+		while i < len(STLN_TIMES):
+			if time.time() - self._locked_time < STLN_TIMES[i]:
+				self._stln_timer = Timer(STLN_DELAYS[i], _stln_rtn)
+				self._stln_timer.start()
+				found = True
+				break
+			i += 1
+		if found:
+			self._stln_timer = Timer(STLN_DELAYS[-1], _stln_rtn)
+			self._stln_timer.start()
+
+	def _stln_stop(self):
+		self._stln_timer.cancel()
 
 	# Triggers
 	# Méthode à appeler lorsque l'on entre dans un état
