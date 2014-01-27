@@ -40,5 +40,11 @@ def getCloseBikes(current_lat, current_long):
 	results = config.DB.query(query)
 	return results
 
+def getObsoleteReservations():
+	query = """ SELECT * 
+		FROM velov_tasks
+		WHERE ( (type=2) AND ( (EXTRACT( EPOCH FROM NOW() ) - action_time) > 300) ); """
+	results = config.DB.query(query)
+	return results
 
 
