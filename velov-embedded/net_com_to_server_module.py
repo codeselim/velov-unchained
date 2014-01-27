@@ -70,4 +70,4 @@ class NetComToServerModule:
 		self.sendData("LOC " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))
 
 	def sendStlMsg(self):
-		self.sendData("STL " + str(self.getID()) + " " + self.getTimestamp() + " " str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))
+		self.sendData("STL " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))
