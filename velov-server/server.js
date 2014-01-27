@@ -9,12 +9,13 @@ var gps_utils = require("./gps_utils");
 var tasks = require("./tasks");
 var netw = require('./network')
 var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
+var sd = require('./shared_data')
 var FRAME_SEPARATOR = netw.FRAME_SEPARATOR
 var DATA_SEPARATOR = netw.DATA_SEPARATOR
 var STATES_CODES = {}
-
+var isPointInPoly = require('./point-in-polygon').isPointInPoly
+var FORBIDDEN_ZONES = sd.FORBIDDEN_ZONES
 var DBG = true
-var sd = require('./shared_data')
 var t = sd.TABLE_NAMES // handy shortcut, for even shorter use
 var db = sd.pgsql
 
@@ -23,9 +24,19 @@ var decode = netw.decode
 var action_localization = function (frame_data, stream) {
 	var tile_index = get_tile_from_gps_coords(frame_data.params[2], frame_data.params[3])
 	db.select_query
-	db.insert_query(t['loc_histo'], ['velov_id', 'time', 'tile_index', 'lat', 'long'], [frame_data.params[0], frame_data.params[1], tile_index, frame_data.params[1], frame_data.params[2]], function (err, result) {
-		console.log("Query has been executed.", err)
-	})
+	db.insert_query(
+		t['loc_histo'],
+		['velov_id', 'time', 'tile_index', 'lat', 'long'],
+		[
+			frame_data.params[0],
+			frame_data.params[1],
+			tile_index,
+			frame_data.params[2],
+			frame_data.params[3]
+		],
+		function (err, result) {
+			console.log("Query has been executed.", err)
+		})
 }
 
 var action_change_state = function (frame_data, stream) {
@@ -66,6 +77,16 @@ var action_change_state = function (frame_data, stream) {
 	} else if (frame_data.params[2] === 'RLK') {
 		// User asked to release the velov
 		// First, let us see if it is allowed where the velov is currently, then, register that
+		var refuse = function () {
+			netw.reply_velov(stream, {cmd: "REP", confirm: 'NOK', params:[]}, function (success, original_data) {
+				if (success) {
+					stream.end()
+					stream.destroy()
+				} else {
+					console.error("Could not reply to velov to allow unlocking...")
+				}
+			});
+		}
 		db.text_query(
 			'SELECT user_id, id FROM '+ t['urs'] + ' WHERE velov_id = ' + frame_data.id + " AND time_end IS NULL ORDER BY id DESC LIMIT 1",
 			function (err, result) {
@@ -83,28 +104,60 @@ var action_change_state = function (frame_data, stream) {
 						function (err2, result2) {
 							if (err) {
 								console.error("ERR somethign went wrong while inserting the new user action")
+								refuse()
 							} else {
-								//TODO: Here, add something that checks for forbidden zones and answers NO if in such a zone
-								var forbidden = false
-								if (forbidden) {
+								db.select_query(
+									t['loc_histo'],
+									['lat', 'long'],
+									['velov_id'],
+									[frame_data.id],
+									null,
+									function (err3, result3) {
+										if (err3) {
+											console.error("Could not retrieve current velov location, refusing RLK");
+											refuse()
+										};
 
-								} else {
-									netw.reply_velov(stream, {cmd: "REP", confirm: 'OK', params:[]}, function (success, original_data) {
-										if (success) {
-											stream.end()
-											stream.destroy()
-											sd.pgsql.update_query(
-												t['urs'],
-												['time_end'],
-												[frame_data.time],
-												['id'],
-												[renting_session_id]
-											)
+										var current_pos = result3.rows[0]
+
+										console.log("Velov of id", frame_data.id, "RLK-ed and is currently at location ", current_pos)
+
+										var forbidden = false
+
+										console.log("Checking against the following fobidden zones:", FORBIDDEN_ZONES)
+
+										for (var i in FORBIDDEN_ZONES) {
+											console.log("Testing if in zone", i, "(", FORBIDDEN_ZONES[i], ")")
+											if (isPointInPoly(FORBIDDEN_ZONES[i], current_pos)) {
+												console.log("Velov is inside the zone")
+												forbidden = true
+												break
+											};
+											console.log("Velov is outside the zone");
+										};
+
+										if (forbidden) {
+											refuse();
 										} else {
-											console.error("Could not reply to velov to allow unlocking...")
+											netw.reply_velov(stream, {cmd: "REP", confirm: 'OK', params:[]}, function (success, original_data) {
+												if (success) {
+													stream.end()
+													stream.destroy()
+													sd.pgsql.update_query(
+														t['urs'],
+														['time_end'],
+														[frame_data.time],
+														['id'],
+														[renting_session_id]
+													)
+												} else {
+													console.error("Could not reply to velov to allow unlocking...")
+												}
+											})
 										}
-									})
-								}
+									},
+									"ORDER BY id DESC LIMIT 1"
+								)
 							}
 						}
 					)				
@@ -150,40 +203,56 @@ function start (db, port) {
 			STATES_CODES[result.rows[i].codename] = result.rows[i].id
 		};
 
-		var server = net.createServer(function(stream) {
-			stream.setTimeout(0);
-			stream.setEncoding("utf8");
+		db.select_query(t['fz'], ['*'], null, null, null, function (err_, result_) {
+			if (err_) {
+				console.error("An error occured while loading velov states:", err, "aborting server start.")
+				return false
+			};
+			for (var i = 0; i < result_.rows.length; i++) {
+				if (result_.rows[i].id in FORBIDDEN_ZONES) {
+					FORBIDDEN_ZONES[result_.rows[i].id].push({'lat': result_.rows[i].lat, 'long': result_.rows[i].long})	
+				} else {
+					FORBIDDEN_ZONES[result_.rows[i].id] = [{'lat': result_.rows[i].lat, 'long': result_.rows[i].long}]	
+				}
+			};
 
-			stream.addListener("connect", function(){
-				console.log("VSERV: ", new Date(), "New velovs server connection established.")
+			console.log("Loaded the following forbidden zones: ", FORBIDDEN_ZONES)
+
+			var server = net.createServer(function(stream) {
+				stream.setTimeout(0);
+				stream.setEncoding("utf8");
+
+				stream.addListener("connect", function(){
+					console.log("VSERV: ", new Date(), "New velovs server connection established.")
+				});
+
+				var buffer = ""
+				stream.addListener("data", function (data) {
+					console.log("VSERV: ", new Date(), "Receiving data from a velov.")
+					buffer += data
+					var pos = -1
+					while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
+						console.log(new Date(), "A frame is over")
+						console.log(buffer)
+						console.log(buffer.indexOf(FRAME_SEPARATOR))
+						// console.log("pos=", pos)
+						var frame = buffer.substr(0, pos)
+						buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
+						var frame_data = decode(frame)
+						frame_action(frame_data, stream)
+					};
+					console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
+				});
+
+				stream.addListener("end", function() {
+					console.log("VSERV: ", "Closing a velovs server connection")
+
+					stream.end();
+				});
 			});
 
-			var buffer = ""
-			stream.addListener("data", function (data) {
-				console.log("VSERV: ", new Date(), "Receiving data from a velov.")
-				buffer += data
-				var pos = -1
-				while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
-					console.log(new Date(), "A frame is over")
-					console.log(buffer)
-					console.log(buffer.indexOf(FRAME_SEPARATOR))
-					// console.log("pos=", pos)
-					var frame = buffer.substr(0, pos)
-					buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
-					var frame_data = decode(frame)
-					frame_action(frame_data, stream)
-				};
-				console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
-			});
-
-			stream.addListener("end", function() {
-				console.log("VSERV: ", "Closing a velovs server connection")
-
-				stream.end();
-			});
-		});
-
-		server.listen(port);
+			server.listen(port);
+		})
 	})
 
 	setInterval(function () {

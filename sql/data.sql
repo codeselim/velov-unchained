@@ -90,4 +90,13 @@ INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (2, 
 
 ---------------------------------------------
 INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (1, 1, 1390828731, 7);
-SELECT pg_catalog.setval('velov_state_history_id_seq', 2, true);
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (2, 2, 1390828731, 7);  -- charlotte's veloPCV01
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (3, 3, 1390828731, 7);  -- charlotte's veloPCV02
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (4, 4, 1390828731, 7);  -- charlotte's veloPCV03
+SELECT pg_catalog.setval('velov_state_history_id_seq', 5, true);
+---------------------------------------------------
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (1,1,1390828746, 1, 45.7728813, 4.87606287);
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (2,2,1390828770, 2, 45.75, 4.85); -- charlotte's veloPCV01
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (3,3,1390828780, 3, 45.76, 4.85); -- charlotte's veloPCV02
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (4,4,1390828790, 1, 45.75, 4.86); -- charlotte's veloPCV03
+SELECT pg_catalog.setval('velov_location_history_id_seq', 5, true);

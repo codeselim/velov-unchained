@@ -73,6 +73,10 @@ var register_user_action = function (success, reply_data, original_data) {
 
 var process_chg_state_velov_reply = function (reply_data, original_data) {
 	console.log("Message sent to velov. And it replied (task.id=", original_data.task.id, ")")
+	if (!reply_data) {
+		console.error("It replied nothing, aborting");
+		return
+	};
 	if (reply_data.cmd === "REP") {
 		if (reply_data.params[0] == "OK") {
 			console.log("Velov answered OK")

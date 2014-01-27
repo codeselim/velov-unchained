@@ -2,6 +2,7 @@
 import web, model
 import authentication
 import view, config
+import json
 from view import render
 
 web.config.debug = False
@@ -90,10 +91,9 @@ class getCloseBikes:
 		current_lat = 45.767433
 		current_long = 4.875676
 		bikes = model.getCloseBikes(current_lat, current_long)
-		print "bikes are"
-		print bikes
-		web.header("Content-Type", "text/plain")
-		return "Hello getCloseBikes"	
+		tosend = list(bikes)
+		web.header("Content-Type", "application/json")
+		return json.dumps(tosend)
 
 if __name__ == "__main__":
 	app.run()

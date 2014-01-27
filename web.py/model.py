@@ -30,10 +30,21 @@ def getZoneInterdites():
 def getCloseBikes(current_lat, current_long):
 	tile_index = tools.tileIndex(current_lat, current_long)
 	search_depth = 3
-	tile_indexes = tools.zonePerimeter(tile_index, search_depth)
-	#results = db.query("SELECT COUNT(*) AS total_users FROM users")
-	#print results[0].total_users # -> prints number of entries in 'users' table
-	return tile_indexes
+	tile_indexes = tools.zonePerimeter(tile_index, search_depth) #@TODO use tileindex in fetching bikes... 
+	query = """ select vlh.velov_id as velov_id,
+				vlh.lat as velov_lat, vlh.long as velov_long,
+				vlh.time as location_history_time, vsh.time as state_history_time,
+				vsh.state_id as state_id, states.codename as state_codename, states.name as state_name 
+				from velov_state_history vsh, velov_location_history vlh, states
+				where vsh.velov_id = vlh.velov_id and states.id = vsh.state_id and vsh.state_id = 7 """
+	results = config.DB.query(query)
+	return results
 
+def getObsoleteReservations():
+	query = """ SELECT * 
+		FROM velov_tasks
+		WHERE ( (type=2) AND ( (EXTRACT( EPOCH FROM NOW() ) - action_time) > 300) ); """
+	results = config.DB.query(query)
+	return results
 
 

@@ -10,6 +10,7 @@ var TABLE_NAMES = { // shortens the code, and avoids spelldraws, in short, THIS 
 	, 's': "states"
 	, 'uah': "user_action_history"
 	, 'urs': "user_renting_sessions"
+	, 'fz': "zones_interdites"
 }
 
 var TASK_STATES_CODES = {
@@ -36,6 +37,8 @@ var TASK_TYPE_CODES = {
 	, 'chg_res': 6
 }
 
+var FORBIDDEN_ZONES = {}
+
 var DATABASE_POLL_INTERVAL = 1000 // milliseconds
 
 exports.TABLE_NAMES = TABLE_NAMES
@@ -44,3 +47,4 @@ exports.pgsql = pgsql
 exports.DATABASE_POLL_INTERVAL = DATABASE_POLL_INTERVAL
 exports.TASK_TYPE_CODES = TASK_TYPE_CODES
 exports.USER_ACTION_CODES = USER_ACTION_CODES
+exports.FORBIDDEN_ZONES = FORBIDDEN_ZONES
