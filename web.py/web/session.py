@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Session Management
 (from web.py)

@@ -180,7 +180,12 @@ $def with (session, zones_interdites)
    				data: 'latlng='+lat+','+long +'&sensor=true',
    				dataType: "json",
    				success: function(address){
-					jQuery('#addressVelo').html(address.results[0].formatted_address);
+   					if (address.status == "OK"){
+   						jQuery('#addressVelo').html(address.results[0].formatted_address);
+   					}
+   					else {
+   						jQuery('#addressVelo').html("Impossible d'afficher l'adresse");
+   					}
    				}
    			});
 		}
@@ -223,11 +228,12 @@ $def with (session, zones_interdites)
 			<li class="name">
 				<h1><a href="#">Velo'V Unchained</a></h1>
 			</li>
+			<li class="toggle-topbar menu-icon"><a href="#"><span>Connexion</span></a></li> 
 		</ul>
 
 		<section class="top-bar-section">
 			<!-- Right Nav Section -->
-			<ul class="4-large columns right">
+			<ul class="right">
 				$if session:
 					<li class="name">
 						<a>Bonjour $session['user_login']</a>
@@ -236,17 +242,14 @@ $def with (session, zones_interdites)
 						<a href="/logout" class="button">Déconnexion</a>
 					</li>
 				$else:
-					<li class="has-dropdown">
-						<a class="button">Connexion</a>
-						<ul class="dropdown">
-							<li>
-								<form method="post" action="">
-									<input type="text" name="login" placeholder="Login" />
-									<input type="password" name="password" placeholder="Password" />
-									<input type="submit" name="submitlogin" value="Se connecter">
-								</form>
-							</li>	        	
-						</ul>
+					<li class="has-form">
+					<div class="row collapse">
+						<form method="post" action="/">
+							<li><input type="text" name="login" placeholder="Login" /></li>
+							<li><input type="password" name="password" placeholder="Password" /></li>
+							<li><input type="submit" class="button" name="submitlogin" value="Se connecter"></li>
+						</form>
+					</div>
 					</li>
 			</ul>
 		</section>
@@ -282,4 +285,4 @@ $def with (session, zones_interdites)
 </body>
 
 </html>
-		       					if (address.status == "OK"){
+		       					
