@@ -30,13 +30,16 @@ var insert_query = function (table_name, columns, values, callback) {
 	client.query(query_str, values , callback)
 }
 
-var select_query = function (table_name, columns, columns_where, values_where, operator_where, callback) {
+var select_query = function (table_name, columns, columns_where, values_where, operator_where, callback, addition_to_query_str) {
 	var where_clause = ""
 	if (typeof columns_where != "undefined" && typeof values_where != "undefined" && columns_where && values_where) {
 		where_clause =" WHERE (" + get_where_clause(columns_where, values_where, 1, operator_where) + ")" 
 	}
 
 	var query_str = "SELECT " + columns.join(", ") + " FROM " + table_name + where_clause
+	if (addition_to_query_str) {
+		query_str += " " + addition_to_query_str;
+	};
 	if (DBG) {
 		console.log("DB::Issuing query:", query_str, "with values", values_where)
 	};
