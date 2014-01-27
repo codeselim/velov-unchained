@@ -1,4 +1,4 @@
-$def with (session)
+$def with (session, zones_interdites)
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +15,9 @@ $def with (session)
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD557QLPKAycHKwNmmviNQisn4UJ2Lg4IU&sensor=true"></script>
 
 	<script type="text/javascript">
+		$for zone_interdite in zones_interdites:
+			console.log($zone_interdite.lat)
+			console.log($zone_interdite.long)
 
 		//veloVs à charger dans la BDD
 		//TODO : format d'export

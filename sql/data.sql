@@ -42,6 +42,16 @@ SELECT pg_catalog.setval('users_id_seq', 3, true);
 
 -- ---------------------------------------------- --------------------------------------
 
+INSERT INTO zones_interdites (id, long, lat) VALUES (1, 4.854326, 45.772552);
+INSERT INTO zones_interdites (id, long, lat) VALUES (1, 4.85836, 45.772911);
+INSERT INTO zones_interdites (id, long, lat) VALUES (1, 4.85939, 45.784764);
+INSERT INTO zones_interdites (id, long, lat) VALUES (1, 4.852009, 45.783626 );
+INSERT INTO zones_interdites (id, long, lat) VALUES (1, 4.847374, 45.780873 );
+INSERT INTO zones_interdites (id, long, lat) VALUES (1, 4.844885, 45.777371 );
+
+SELECT pg_catalog.setval('zones_interdites_id_seq', 2, true);
+
+-------------------------------------------------------------------------------
 INSERT INTO user_actions (id, name) VALUES (1, 'Reservation');
 INSERT INTO user_actions (id, name) VALUES (2, 'Unlock authorization');
 INSERT INTO user_actions (id, name) VALUES (3, 'Unlock action');
