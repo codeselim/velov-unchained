@@ -9,7 +9,8 @@ from threading import Timer
 
 # Délai pendant lequel le vélo reste débloquable.
 # C'est le temps qu'à l'utilisateur pour le récupérer
-UNLOCKABLE_DELAY	=	30.0 # En secondes
+UNLOCKABLE_DELAY	=	30.0		# En secondes
+RESERVED_DELAY		= 	(5.*60.)	# En secondes
 
 
 class SystemState:
@@ -130,14 +131,22 @@ class SystemState:
 		self._timer.cancel()
 		self._show_state()
 
+	#
+	# Trigger pour l'état réservé
+	def _reserved_trigger(self):
+		self._timer = Timer(RESERVED_DELAY, self._relock)
+		self._timer.start()
+		self._show_state()
+
 	# Triggers
 	# Méthode à appeler lorsque l'on entre dans un état
 	Triggers = {	Used		: _used_trigger,
 					Stolen 		: _show_state,
 					Unusable 	: _show_state,
-					Reserved	: _show_state,
+					Reserved	: _reserved_trigger,
 					Unlockable	: _unlockable_trigger,
 					Available	: _show_state,
 					Off 		: _show_state,
 					Unknown		: _show_state
 	}
+
