@@ -73,6 +73,8 @@ SELECT pg_catalog.setval('velovs_id_seq', 6, true);
 INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 1, 1, CURRENT_TIMESTAMP);
 INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, CURRENT_TIMESTAMP);
 INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, CURRENT_TIMESTAMP);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 2, 1, 3, CURRENT_TIMESTAMP);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 2, 2, 4, CURRENT_TIMESTAMP);
 
 -- ---------------------------------------
 
