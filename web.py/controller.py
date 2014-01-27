@@ -18,7 +18,6 @@ app = web.application(urls, globals())
 app.internalerror = web.debugerror
 store = web.session.DiskStore('sessions')
 session = web.session.Session(app, store, initializer={ 'login_validated' : False,  'user_id' : 0, 'user_login': 0, 'firstname': 0, 'lastname': 0, 'email' : 0, 'tel_portable' : 0})
-zones_interdites = model.getZoneInterdites()
 
 class index:
 	def GET(self):		
@@ -30,6 +29,7 @@ class index:
 		# print pt2.long
 		#print zones_interdites[0].long
 		#check if the user is logged in
+		zones_interdites = model.getZoneInterdites()
 		if authentication.is_logged(session) :
 			print("the user is logged in")
 			return render.index(session, zones_interdites)
@@ -38,6 +38,7 @@ class index:
 			return render.index(None, zones_interdites)
 
 	def POST(self):
+		zones_interdites = model.getZoneInterdites()
 		print("POST Submitted")
 		i = web.input()
 		print(i) #printing the post vars
