@@ -2,6 +2,7 @@
 import web, model
 import authentication
 import view, config
+import json
 from view import render
 
 web.config.debug = False
@@ -10,7 +11,8 @@ urls = (
     '/', 'index',
     '/logout', 'logout',
     '/book', 'book',
-    '/take', 'take'
+    '/take', 'take',
+    '/getCloseBikes', 'getCloseBikes'
 )
 
 app = web.application(urls, globals())
@@ -80,6 +82,18 @@ class logout:
 	def GET(self):
 		authentication.logout(session)
 		raise web.seeother('/')
+
+class getCloseBikes:
+	def POST(self):
+		#i = web.input()
+		#current_lat = i.current_location_lat
+		#current_long = i.current_location_long
+		current_lat = 45.767433
+		current_long = 4.875676
+		bikes = model.getCloseBikes(current_lat, current_long)
+		tosend = list(bikes)
+		web.header("Content-Type", "application/json")
+		return json.dumps(tosend)
 
 if __name__ == "__main__":
 	app.run()
