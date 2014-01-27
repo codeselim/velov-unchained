@@ -9,12 +9,13 @@ var gps_utils = require("./gps_utils");
 var tasks = require("./tasks");
 var netw = require('./network')
 var get_tile_from_gps_coords = gps_utils.get_tile_from_gps_coords
+var sd = require('./shared_data')
 var FRAME_SEPARATOR = netw.FRAME_SEPARATOR
 var DATA_SEPARATOR = netw.DATA_SEPARATOR
 var STATES_CODES = {}
-
+var isPointInPoly = require('./point-in-poly').isPointInPoly
+var FORBIDDEN_ZONES = sd.FORBIDDEN_ZONES
 var DBG = true
-var sd = require('./shared_data')
 var t = sd.TABLE_NAMES // handy shortcut, for even shorter use
 var db = sd.pgsql
 
@@ -86,8 +87,22 @@ var action_change_state = function (frame_data, stream) {
 							} else {
 								//TODO: Here, add something that checks for forbidden zones and answers NO if in such a zone
 								var forbidden = false
-								if (forbidden) {
 
+								for (var i = 0; i < FORBIDDEN_ZONES.length; i++) {
+									if (isPointInPoly(current_pos, FORBIDDEN_ZONES[i])) {
+										forbidden = true
+										break
+									};
+								};
+
+								if (forbidden) {
+									netw.reply_velov(stream, {cmd: "REP", confirm: 'NOK', params:[]}, function (success, original_data) {
+										if (success) {
+											stream.end()
+											stream.destroy()
+										} else {
+											console.error("Could not reply to velov to allow unlocking...")
+										}
 								} else {
 									netw.reply_velov(stream, {cmd: "REP", confirm: 'OK', params:[]}, function (success, original_data) {
 										if (success) {
@@ -150,40 +165,56 @@ function start (db, port) {
 			STATES_CODES[result.rows[i].codename] = result.rows[i].id
 		};
 
-		var server = net.createServer(function(stream) {
-			stream.setTimeout(0);
-			stream.setEncoding("utf8");
+		db.select_query(t['fz'], ['*'], null, null, null, function (err, result) {
+			if (err) {
+				console.error("An error occured while loading velov states:", err, "aborting server start.")
+				return false
+			};
+			for (var i = 0; i < result.rows.length; i++) {
+				if (result.rows[i].id in FORBIDDEN_ZONES) {
+					FORBIDDEN_ZONES[result.rows[i].id].push({'lat': result.rows[i].lat, 'long': result.rows[i].long})	
+				} else {
+					FORBIDDEN_ZONES[result.rows[i].id] = [{'lat': result.rows[i].lat, 'long': result.rows[i].long}]	
+				}
+			};
 
-			stream.addListener("connect", function(){
-				console.log("VSERV: ", new Date(), "New velovs server connection established.")
+			console.log("Loaded the following forbidden zones: ", FORBIDDEN_ZONES)
+
+			var server = net.createServer(function(stream) {
+				stream.setTimeout(0);
+				stream.setEncoding("utf8");
+
+				stream.addListener("connect", function(){
+					console.log("VSERV: ", new Date(), "New velovs server connection established.")
+				});
+
+				var buffer = ""
+				stream.addListener("data", function (data) {
+					console.log("VSERV: ", new Date(), "Receiving data from a velov.")
+					buffer += data
+					var pos = -1
+					while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
+						console.log(new Date(), "A frame is over")
+						console.log(buffer)
+						console.log(buffer.indexOf(FRAME_SEPARATOR))
+						// console.log("pos=", pos)
+						var frame = buffer.substr(0, pos)
+						buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
+						var frame_data = decode(frame)
+						frame_action(frame_data, stream)
+					};
+					console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
+				});
+
+				stream.addListener("end", function() {
+					console.log("VSERV: ", "Closing a velovs server connection")
+
+					stream.end();
+				});
 			});
 
-			var buffer = ""
-			stream.addListener("data", function (data) {
-				console.log("VSERV: ", new Date(), "Receiving data from a velov.")
-				buffer += data
-				var pos = -1
-				while (-1 != (pos = buffer.indexOf(FRAME_SEPARATOR))) {//* We have found a separator, that means that the previous frame (that may be incomplete or may not) is over and a new one starts
-					console.log(new Date(), "A frame is over")
-					console.log(buffer)
-					console.log(buffer.indexOf(FRAME_SEPARATOR))
-					// console.log("pos=", pos)
-					var frame = buffer.substr(0, pos)
-					buffer = buffer.substr(pos + FRAME_SEPARATOR.length, buffer.length) //* If the second parameter is >= the maximum possible length substr can return, substr just returns the maximum length possible, so who cares substracting?
-					var frame_data = decode(frame)
-					frame_action(frame_data, stream)
-				};
-				console.log("VSERV: ", "Ending the velovs stream data receiver function") //* Mainly for the purpose of being able to check when the VELOV_FRAME_EVENT handler function is executed with respect to the current function execution
-			});
-
-			stream.addListener("end", function() {
-				console.log("VSERV: ", "Closing a velovs server connection")
-
-				stream.end();
-			});
-		});
-
-		server.listen(port);
+			server.listen(port);
+		})
 	})
 
 	setInterval(function () {
