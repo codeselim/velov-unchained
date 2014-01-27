@@ -15,9 +15,18 @@ $def with (session, zones_interdites)
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD557QLPKAycHKwNmmviNQisn4UJ2Lg4IU&sensor=true"></script>
 
 	<script type="text/javascript">
+
+		//Zones interdites
+		var idZone = null;
 		$for zone_interdite in zones_interdites:
-			console.log($zone_interdite.lat)
-			console.log($zone_interdite.long)
+			if (idZone != $zone_interdite.id){
+				idZone = $zone_interdite.id
+				var zone$zone_interdite.id = [];
+			}
+			zone$(zone_interdite.id).push(JSON.parse('{"lat": $zone_interdite.lat, "long": $zone_interdite.long}'));
+
+		var zones = [];
+		zones.push(zone$(zone_interdite.id));
 
 		//veloVs à charger dans la BDD
 		//TODO : format d'export
@@ -28,11 +37,6 @@ $def with (session, zones_interdites)
 		veloVs.push(veloPCV01);
 		veloVs.push(veloPCV02);
 		veloVs.push(veloPCV03);
-
-		//Zones interdites
-		var zone1 = JSON.parse('[{"lat": 45.772552,"long": 4.854326},{"lat": 45.772911,"long": 4.85836},{"lat": 45.784764,"long": 4.85939},{"lat": 45.783626,"long": 4.852009},{"lat": 45.780873,"long": 4.847374},{"lat": 45.777371,"long": 4.844885}]');
-		var zones = [];
-		zones.push(zone1);
 
 		var googleMap;
 		var oldLat = null;
@@ -80,7 +84,8 @@ $def with (session, zones_interdites)
 			//trace un marqueur
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(latitude, longitude),
-				map: googleMap
+				map: googleMap,
+				title: "Vous êtes ici"
 			});
 										 
 			//centre la map aux coordonnées voulue
@@ -109,15 +114,14 @@ $def with (session, zones_interdites)
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(velo.lat, velo.long),
 				map: googleMap,
-				title: "Hello World !"
+				title: "Vélo disponible"
 			});
 
 			$if session:
 				var contentString = writeContentString(velo)
 			$else:
 				var contentString = '<h6>'+velo.nameVelo+'</h6>'+
-				'<a disabled class="button">Réserver</a>&nbsp'+
-				'<a disabled class="button">Prendre</a>';
+				'<p>Vous devez vous connecter pour effectuer une opération</p>';
 
 			var infowindow = new google.maps.InfoWindow({
 				content: contentString
