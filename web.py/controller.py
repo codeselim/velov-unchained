@@ -12,7 +12,8 @@ urls = (
     '/logout', 'logout',
     '/book', 'book',
     '/take', 'take',
-    '/getCloseBikes', 'getCloseBikes'
+    '/getCloseBikes', 'getCloseBikes',
+    '/getObsoleteReservations', 'getObsoleteReservations'
 )
 
 app = web.application(urls, globals())
@@ -94,6 +95,14 @@ class getCloseBikes:
 		tosend = list(bikes)
 		web.header("Content-Type", "application/json")
 		return json.dumps(tosend)
+
+class getObsoleteReservations:
+	def GET(self):
+		results = model.getObsoleteReservations()
+		tosend = list(results)
+		web.header("Content-Type", "application/json")
+		return json.dumps(tosend)
+
 
 if __name__ == "__main__":
 	app.run()
