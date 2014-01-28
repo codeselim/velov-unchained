@@ -126,6 +126,14 @@ class getChangesUser:
 		#ne pas le faire pour l'instant
 		#renvoyer les variables de la session qui ont change
 
+class bikeInaccessible:
+	def POST(self):
+		web.header("Content-Type", "text/plain") 
+		if authentication.is_logged(session):
+			i = web.input()
+			#TODO Selim : incrementer le nombre de signalements
+			return "OK"
+		return "NO"
 
 class getObsoleteReservations:
 	def GET(self):
