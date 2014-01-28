@@ -59,7 +59,7 @@ class index:
 			if auth_results['login_validated'] == True :
 				authentication.register_login(session,auth_results)
 				view_msg ="successfully logged in"
-				print session.__dict__
+				#print session.__dict__
 				return render.index(session, zones_interdites)
 			else :
 				view_msg ="Bad authentication"
@@ -131,7 +131,8 @@ class bikeInaccessible:
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
 			i = web.input()
-			#TODO Selim : incrementer le nombre de signalements
+			velo_id=i.velo
+			model.signalBikeInaccessible(velo_id)
 			return "OK"
 		return "NO"
 
