@@ -15,6 +15,7 @@ urls = (
     '/bookCancel', 'bookCancel',
     '/take', 'take',
     '/getCloseBikes', 'getCloseBikes',
+    '/bikeInaccessible','bikeInaccessible',
     '/getObsoleteReservations', 'getObsoleteReservations',
     '/getChangesBikes','getChangesBikes',
     '/getChangesUser','getChangesUser'

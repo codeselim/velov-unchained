@@ -29,11 +29,15 @@ $def with (session, zones_interdites)
 		var zones = [];
 		zones.push(zone$(zone_interdite.id));
 
+		//Liste des objets velos
+		var velovsList = [];
+
 		//Objets vélos
-		function velov(velov_id,velov_lat,velov_long){
+		function velov(velov_id,velov_lat,velov_long,count_inaccessible=0){
 			this.velov_id = velov_id;
 			this.velov_lat = velov_lat;
 			this.velov_long = velov_long;
+			this.count_inaccessible = count_inaccessible;
 
 			this.showVelov = showVelov;
 			function showVelov(){
@@ -48,7 +52,11 @@ $def with (session, zones_interdites)
 				$if session:
 					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<a onclick=bookEvent('+this.velov_id+','+this.velov_lat+','+this.velov_long+') class="button">Réserver</a>&nbsp'+
-					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>';
+					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>'+
+					'<br/><a onclick=bikeInaccessible('+this.velov_id+') class="button alert small">Signaler innaccesible</a>';
+					if (this.count_inaccessible > 0){
+						contentString = contentString + '<p class="alert round label">Attention ce vélo a été signalé innaccesible '+this.count_inaccessible+' fois</p>';
+					}
 				$else:
 					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<p>Vous devez vous connecter pour effectuer une opération</p>';
@@ -119,6 +127,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		for (var i=0; i<data.length; i++){
 		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long)
+		       			velovsList.push(velo);
 		       			velo.showVelov();
 		       		}
 		       	}
@@ -246,6 +255,20 @@ $def with (session, zones_interdites)
 			});
 		}
 
+		function bikeInaccessible(velo){
+			jQuery.ajax({
+				url: '/bikeInaccessible',
+				type: 'POST',
+				data: 'velo=' + velo,
+				dataType: "text",
+				success: function(data){
+					if (data == "OK"){
+		       			jQuery('#bikeInaccessibleOk').foundation('reveal', 'close');
+		       		}
+				}
+			});
+		}
+
 	</script>
 </head>
 <body>
@@ -300,6 +323,12 @@ $def with (session, zones_interdites)
 	<div id="takeOk" class="reveal-modal" data-reveal>
 		<h2>Vous avez un vélo en cours d'utilisation</h2>
 		<p>Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
+	</div>
+
+	<div id="bikeInaccessibleOk" class="reveal-modal" data-reveal>
+		<h2>Merci</h2>
+		<p>Votre signalement a bien été pris en compte, merci de votre contribution</p>
+		<a class="alert button" onclick="/">Fermer</a>
 	</div>
 
 	<div id="googleMap"/>
