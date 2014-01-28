@@ -3,6 +3,7 @@ import web, model
 import authentication
 import view, config
 import json
+import time
 from view import render
 
 web.config.debug = False
@@ -63,9 +64,8 @@ class book:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#TODO charlotte take the veloID from the post >> i = web.input() ...
-			veloId=1
-			model.bookVelo(session.user_id, veloId)
+			i = web.input()
+			model.bookVelo(session.user_id, i.velo)
 			return "OK"
 		return "NO"
 
@@ -73,9 +73,8 @@ class take:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#TODO charlotte take the veloID from the post >> i = web.input() ...
-			veloId=1
-			model.takeVelo(session.user_id, veloId)
+			i = web.input()
+			model.takeVelo(session.user_id, i.velo)
 			return "OK"
 		return "NO"
 
