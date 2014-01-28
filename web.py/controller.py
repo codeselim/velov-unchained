@@ -12,9 +12,12 @@ urls = (
     '/', 'index',
     '/logout', 'logout',
     '/book', 'book',
+    '/bookCancel', 'bookCancel',
     '/take', 'take',
     '/getCloseBikes', 'getCloseBikes',
-    '/getObsoleteReservations', 'getObsoleteReservations'
+    '/getObsoleteReservations', 'getObsoleteReservations',
+    '/getChangesBikes','getChangesBikes',
+    '/getChangesUser','getChangesUser'
 )
 
 app = web.application(urls, globals())
@@ -69,6 +72,15 @@ class book:
 			return "OK"
 		return "NO"
 
+class bookCancel:
+	def POST(self):
+		web.header("Content-Type", "text/plain") 
+		if authentication.is_logged(session):
+			#TODO Selim : annuler reservation
+			#pas d'argument car tu peux retrouver l'id du user avec la session et donc la réservation en cours
+			return "OK"
+		return "NO"
+
 class take:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
@@ -94,6 +106,23 @@ class getCloseBikes:
 		tosend = list(bikes)
 		web.header("Content-Type", "application/json")
 		return json.dumps(tosend)
+
+class getChangesBikes:
+	def POST(self):
+		web.header("Content-Type", "application/json")
+		i = web.input() #on recupere le temps de rafraichissement comme ca je peux faire des tests avec plusieurs valeurs
+		#Changement d'etat des velos
+		#TODO Selim : me renvoyer les velos dont l'etat a changer pendant les i.time dernieres secondes
+		#renvoyer une liste des velos qui ont change en json
+
+class getChangesUser:
+	def POST(self):
+		web.header("Content-Type", "application/json")
+		i = web.input() #on recupere le temps de rafraichissement comme ca je peux faire des tests avec plusieurs valeurs
+		#Changement d'etat du user
+		#TODO Selim : recharger les variables de la session si elles ont changees
+		#renvoyer les variables de la session qui ont change
+
 
 class getObsoleteReservations:
 	def GET(self):

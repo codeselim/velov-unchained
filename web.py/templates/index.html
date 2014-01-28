@@ -41,15 +41,16 @@ $def with (session, zones_interdites)
 				var marker = new google.maps.Marker({
 					position: new google.maps.LatLng(this.velov_lat, this.velov_long),
 					map: googleMap,
-					title: "Vélo disponible"
+					title: "Vélo disponible",
+					icon: "static/img/bike-icon.png"
 				});
 
 				$if session:
-					var contentString = '<h6>'+this.velov_id+'</h6>'+
+					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<a onclick=bookEvent('+this.velov_id+','+this.velov_lat+','+this.velov_long+') class="button">Réserver</a>&nbsp'+
 					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>';
 				$else:
-					var contentString = '<h6>'+this.velov_id+'</h6>'+
+					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<p>Vous devez vous connecter pour effectuer une opération</p>';
 
 				var infowindow = new google.maps.InfoWindow({
@@ -141,32 +142,6 @@ $def with (session, zones_interdites)
 			}
 		}
 
-		function showVeloVs(velo){
-			//trace un marqueur
-			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(velo.velov_lat, velo.velov_long),
-				map: googleMap,
-				title: "Vélo disponible",
-				icon: "static/img/bike-icon.png"
-			});
-
-			$if session:
-				var contentString = '<h6>'+velo.velov_id+'</h6>'+
-				'<a onclick=bookEvent(velo'+velo.velov_id+') class="button">Réserver</a>&nbsp'+
-				'<a onclick=takeEvent(velo'+velo.velov_id+') class="button">Prendre</a>';
-			$else:
-				var contentString = '<h6>'+velo.velov_id+'</h6>'+
-				'<p>Vous devez vous connecter pour effectuer une opération</p>';
-
-			var infowindow = new google.maps.InfoWindow({
-				content: contentString
-			});
-
-			google.maps.event.addListener(marker, 'click', function() {
-				infowindow.open(googleMap,marker);
-			});
-		}
-
 		function drawZones(zone){
 			var coordPolygon = [];
 
@@ -244,7 +219,7 @@ $def with (session, zones_interdites)
 			if (restTime < 0){
 				jQuery('#bookEnd').foundation('reveal', 'open');
 				//TODO : ajouter un blâme
-				//TODO : annuler la réservation ou faire qqc du genre
+				bookCancel();
 			}
 			else{
 				minutes = Math.floor(restTime / 60000);
@@ -256,6 +231,19 @@ $def with (session, zones_interdites)
 				document.getElementById("timeBookVelo").innerHTML = timeHTML;
 				setTimeout("bookTimer(time.getTime() + 300000)",1000);
 			}
+		}
+
+		function bookCancel(){
+			jQuery.ajax({
+				url: '/bookCancel',
+				type: 'POST',
+				dataType: "text",
+				success: function(data){
+					if (data == "OK"){
+		       			jQuery('#bookOk').foundation('reveal', 'close');
+		       		}
+				}
+			});
 		}
 
 	</script>
@@ -299,7 +287,7 @@ $def with (session, zones_interdites)
 		<p class="lead">Il est situé <span id="addressVelo"></span></p>
 		<p class="lead">Il vous reste <span id="timeBookVelo"></span> pour prendre le vélo</p>
 		<span id="buttonTakeNow"></span>
-		<a class="alert button">Annuler la réservation</a> 
+		<a class="alert button" onclick="bookCancel()">Annuler la réservation</a> 
 	</div>
 
 	<div id="bookEnd" class="reveal-modal" data-reveal>
