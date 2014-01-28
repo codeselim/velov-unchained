@@ -10,7 +10,7 @@ from se_states import SystemState
 
 
 class BatteryEventHandler(EventHandlerInterface):
-	
+
 	def execute(self, args):
 		# On prévient que la batterie est quasi vide
 		self._serv_com.empBatMsg()

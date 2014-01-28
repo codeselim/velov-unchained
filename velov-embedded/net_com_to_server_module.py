@@ -30,7 +30,7 @@ class NetComToServerModule:
 	def buildFrame(self, data):
 		sha1 = hashlib.sha1()
 		sha1.update(data)
-		checksum = sha1.digest()
+		checksum = sha1.hexdigest()
 		return data + "\t" + checksum + "\n"
 
 
