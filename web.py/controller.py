@@ -30,17 +30,10 @@ session = web.session.Session(app, store, initializer={ 'login_validated' : Fals
 
 class index:
 	def GET(self):		
-		# pt1 = zones_interdites[0]
-		# print pt1.lat
-		# print pt1.long
-		# pt2 = zones_interdites[1]
-		# print pt2.lat
-		# print pt2.long
-		#print zones_interdites[0].long
-		#check if the user is logged in
 		zones_interdites = model.getZoneInterdites()
 		if authentication.is_logged(session) :
 			print("the user is logged in")
+			authentication.update_session(session)
 			return render.index(session, zones_interdites)
 		else :
 			print("the user is not logged in")

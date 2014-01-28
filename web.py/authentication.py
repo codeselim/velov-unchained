@@ -27,6 +27,11 @@ def register_login(session,auth_data):
 	session.is_a_reservation_taking_place = auth_data['is_a_reservation_taking_place']
 	session.reservation_starting_time = auth_data['reservation_starting_time']
 
+def update_session(session):
+	_vars = dict(login=session.user_login)
+	updated_data = model.getSessionUpdates(_vars)
+	register_login(session, updated_data)
+
 def logout(session):
 	session.login_validated = False
 	session.kill()
