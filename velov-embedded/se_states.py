@@ -12,12 +12,12 @@ import gps_module
 # Délai pendant lequel le vélo reste débloquable.
 # C'est le temps qu'à l'utilisateur pour le récupérer
 UNLOCKABLE_DELAY	=	30.0		# En secondes
-RESERVED_DELAY		= 	(5.*60.)	# En secondes
+RESERVED_DELAY		= 	5.			# En secondes
 #
 STLN_TIMES			=	(	5.*60.,
 							20.*60.,
 						)
-STLN_DELAYS			=	(	60.0,	# Les 5 premières minutes
+STLN_DELAYS			=	(	5.0,	# Les 5 premières minutes
 							5.*60., # Les 15 minutes ensuites
 							3.*60.) # Ensuite
 
@@ -114,6 +114,8 @@ class SystemState:
 	def _relock(self):
 		self.setState(SystemState.Available)
 		self._serv_com.sendStatusChg(self._state)
+		self._clean_func()
+		self._show_state()
 
 	def _unlockable_trigger(self):
 		"""
@@ -127,7 +129,6 @@ class SystemState:
 		Affiche l'état courant du vélo.
 		Simule les LED
 		"""
-		self._clean_func()
 		led_st = None
 		self._print_func("Etat actuel : %s" % self._state)
 		# LED verte
@@ -171,7 +172,7 @@ class SystemState:
 	def _stln_start(self):
 		# Vérifier si le vélo à bougé
 		move = self._updateCurrentPos()
-		if move:
+		if move or self._state == SystemState.Stolen:
 			self.setState(SystemState.Stolen)
 		# On remet le timer
 		i = 0
@@ -220,6 +221,5 @@ class SystemState:
 	Triggers = {	Used		: _used_trigger,
 					Stolen 		: _stln_trigger,
 					Reserved	: _reserved_trigger,
-					Unlockable	: _unlockable_trigger,
+					Unlockable	: _unlockable_trigger
 	}
-
