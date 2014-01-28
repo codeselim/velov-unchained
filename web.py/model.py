@@ -108,3 +108,8 @@ def getObsoleteReservations():
 	tosend = list(results)
 	print(tosend)
 	return results
+
+def signalBikeInaccessible(velov_id):
+	query_string = " update velovs set inaccessibilty_report_nb = inaccessibilty_report_nb + 1 where id =	" + str(int(velov_id))+ " "
+	result = config.DB.query(query_string)
+	return result
