@@ -20,6 +20,9 @@ from msg import Msg, MsgType, MsgWithSocket
 from cmd_interpreter_interface import CmdInterpreterInterface
 from button_cmd_interpreter import ButtonCmdInterpreter
 from locker_cmd_interpreter import LockerCmdInterpreter
+from gps_cmd_interpreter import GpsCmdInterpreter
+from bat_cmd_interpreter import BatteryCmdInterpreter
+import gps_module
 
 
 SERVER_PORT = 5000
@@ -93,6 +96,8 @@ class ThreadSim(ThreadBase):
 		self._interpreters = {}
 		self._interpreters["b"] = ButtonCmdInterpreter()
 		self._interpreters["l"] = LockerCmdInterpreter()
+		self._interpreters["gl"] = GpsCmdInterpreter()
+		self._interpreters["be"] = BatteryCmdInterpreter()
 		# On met en place le serveur réseau
 		NetworkServerHandler.fifo = fifo
 		self._server_thread = NetworkServerThread(SERVER_PORT, SERVER_HOST, NetworkServerHandler)
@@ -113,10 +118,24 @@ class ThreadSim(ThreadBase):
 				inp += ascii.unctrl(ch)
 				ch = self._body_win.getch()
 			# On construit puis on envoie le message au thread SE
+			words = inp.split()
+			if len(words) == 3 and words[0] == "gm":
+				try:
+					gps_module.moveBike(float(words[1]), float(words[2]))
+				except:
+					self._writeLineOnScreen("Commande gm incorrecte")
+				continue
+			elif len(words) == 1 and words[0] == "gs":
+				gps_module.stopMovingBike()
+				continue
+			# Cas du GPS pour le simu
 			msg = self._build_msg(inp)
 			self._send_msg(msg)
 			# Si l'utilisateur veut quitter...
 			if inp == "quit":
+				# On arrête de faire bouger le vélo
+				if gps_module.isMoving():
+					gps_module.stopMovingBike()
 				# On ferme le serveur
 				self._server_thread.shutdown()
 				self._server_thread.join()

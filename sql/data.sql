@@ -34,9 +34,9 @@ SELECT pg_catalog.setval('task_types_id_seq', 5, true);
 
 -- ---------------------------------------------- --------------------------------------
 INSERT INTO users ( id, login, password, creation_date, is_disabled, firstname, lastname, sex, birth_date, address, code_postal, ville, email, tel_portable, membership_exipry_date) 
-VALUES (1, 'selimabisaber', '12345678', now(), FALSE, 'selim', 'saber', 'm', '2000-08-24 14:00:00', '20 Avenue xyz', '69100', 'Villeurbanne', 'selimabisaber@gmail.com', '614184746', '2014-08-24 16:00:00' );
+VALUES (1, 'selimabisaber', '12345678', 1390492193016, FALSE, 'selim', 'saber', 'm', '2000-08-24 14:00:00', '20 Avenue xyz', '69100', 'Villeurbanne', 'selimabisaber@gmail.com', '614184746', 1453900731 );
 INSERT INTO users ( id, login, password, creation_date, is_disabled, firstname, lastname, sex, birth_date, address, code_postal, ville, email, tel_portable, membership_exipry_date) 
-VALUES (2, 'test', 'test', now(), FALSE, 'MyFirstname', 'MyLastname', 'f', '1988-02-24 13:00:00', '2 Avenue xyz', '69003', 'Lyon', 'selimabisaber@gmail.com', '614184746', '2015-08-24 16:00:00' );
+VALUES (2, 'test', 'test', 1390492193016, FALSE, 'MyFirstname', 'MyLastname', 'f', '1988-02-24 13:00:00', '2 Avenue xyz', '69003', 'Lyon', 'selimabisaber@gmail.com', '614184746', 1453900731 );
 
 SELECT pg_catalog.setval('users_id_seq', 3, true);
 
@@ -66,14 +66,47 @@ INSERT INTO velovs (id) VALUES (2);
 INSERT INTO velovs (id) VALUES (3);
 INSERT INTO velovs (id) VALUES (4);
 INSERT INTO velovs (id) VALUES (5);
+INSERT INTO velovs (id) VALUES (6);
+INSERT INTO velovs (id) VALUES (7);
+INSERT INTO velovs (id) VALUES (8);
+INSERT INTO velovs (id) VALUES (9);
+INSERT INTO velovs (id) VALUES (10);
+INSERT INTO velovs (id) VALUES (11);
+INSERT INTO velovs (id) VALUES (12);
+INSERT INTO velovs (id) VALUES (13);
+INSERT INTO velovs (id) VALUES (14);
+INSERT INTO velovs (id) VALUES (15);
 
-SELECT pg_catalog.setval('velovs_id_seq', 6, true);
+SELECT pg_catalog.setval('velovs_id_seq', 16, true);
 -- ---------------------------------------------- --------------------------------------
 
-INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 1, 1, CURRENT_TIMESTAMP);
-INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, CURRENT_TIMESTAMP);
-INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, CURRENT_TIMESTAMP);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 1, 1, 1390828731);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, 1390828731);
+INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, 1390828731);
 
 -- ---------------------------------------
+INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (2, 1, 1, 1390828731);
 
-INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (2, 1, 1, 1390492193016);
+---------------------------------------------
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (1, 1, 1390828731, 7);  -- bike id=1 IN USE
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (2, 2, 1390828731, 7);  -- charlotte's veloPCV01 AVA
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (3, 3, 1390828731, 7);  -- charlotte's veloPCV02 AVA
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (4, 3, 1390820732, 2);  -- charlotte's veloPCV02 IN USE
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (5, 3, 1390822733, 2);  -- charlotte's veloPCV02 IN USE
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (6, 4, 1390828731, 7);  -- charlotte's veloPCV03 AVA
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (7, 7, 1390901876, 2);  -- bike id=7 IN USE
+INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (8, 7, 1390820780, 7);  -- bike id=7 was AVA
+SELECT pg_catalog.setval('velov_state_history_id_seq', 9, true);
+---------------------------------------------------
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (1,1,1390828746, 1, 45.7728813, 4.87606287);
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (2,2,1390828770, 1, 45.75, 4.85); -- charlotte's veloPCV01
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (3,3,1390828771, 1, 45.76, 4.85); -- charlotte's veloPCV02
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (4,3,1390822772, 1, 46.33, 4.87); -- charlotte's veloPCV02
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (5,3,1390820773, 1, 46.22, 4.84); -- charlotte's veloPCV02
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (6,4,1390828790, 1, 45.75, 4.86); -- charlotte's veloPCV03
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (7,7,1390901874, 1, 46.44, 4.86); -- bike id 7
+INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) VALUES (8,7,1390820780, 1, 44.7728813, 4.86); -- bike id 7
+SELECT pg_catalog.setval('velov_location_history_id_seq', 9, true);
+-------------------------------------------------------------------------
+INSERT INTO user_renting_sessions(id, user_id, velov_id, time_start, time_end) VALUES (1, 2, 7, 1390901720, NULL); 
+SELECT pg_catalog.setval('user_renting_sessions_id_seq', 2, true);

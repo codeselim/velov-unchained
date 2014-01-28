@@ -49,6 +49,9 @@ var message_velov = function (data_to_send, callback, tries_count) {
 			var reply_data = decode(frame)
 			console.log("messave_velov(): Launching callback")
 			callback(reply_data, data_to_send)
+			// We are not waiting for more than one reply, shut down now
+			sock.shutdown()
+			sock.close()
 		};
 	});
 
@@ -73,7 +76,9 @@ var reply_velov = function (stream, data_to_send, callback, tries_count) {
 	var message = create_frame_from_data(data_to_send)
 	stream.write(message, null, function () {
 		console.log('message_velov: Data sent to velov.')
-		callback(true, data_to_send)
+		if (callback) {
+			callback(true, data_to_send)
+		};
 	})
 
 	stream.on("error", function () { 

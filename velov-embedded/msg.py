@@ -13,6 +13,8 @@ class MsgType(object):
 	Locker = 'Locker'
 	Button = 'Button'
 	Net = 'Net'
+	GpsLoc = 'GpsLoc'
+	Battery	= 'Battery'
 
 
 class Msg(object):
