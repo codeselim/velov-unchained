@@ -1,7 +1,7 @@
 import config
 import web
 import tools
-
+import time
 #def listing(**k):
 #    return config.DB.select('items', **k)
 
@@ -18,10 +18,12 @@ def authenticate(variables):
 		return dict(login_validated=False, user_id=0,  user_login=0, firstname=0, lastname=0, email=0, tel_portable=0)
 
 def takeVelo(userID, veloID):
-	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=1, user_id=userID, velov_id=veloID, action_time=web.SQLLiteral("CURRENT_TIMESTAMP"));
+	current_timestamp = int(time.time())
+	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=1, user_id=userID, velov_id=veloID, action_time=current_timestamp);
 
 def bookVelo(userID, veloID):
-	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=6, user_id=userID, velov_id=veloID, action_time=web.SQLLiteral("CURRENT_TIMESTAMP"));	
+	current_timestamp = int(time.time())
+	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=6, user_id=userID, velov_id=veloID, action_time=current_timestamp);	
 
 def getZoneInterdites():
 	entries = config.DB.select('zones_interdites')
