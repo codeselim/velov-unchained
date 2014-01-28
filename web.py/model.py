@@ -122,9 +122,9 @@ def getChangesBikes(time_slice):
 				states,
 				(select max(time) as time, velov_id
 				from velov_state_history 
-				where ( """+str(int(current_timestamp))+""" - time) < """+time_slice+"""
+				where ( """+str(int(current_timestamp))+""" - time) < """+str(int(time_slice))+"""
 				group by velov_id) as vsh_cut 
-				where vlh.state_id = states.id and ( """+str(int(current_timestamp))+""" - vlh.time) < """+time_slice+"""
+				where vlh.state_id = states.id and ( """+str(int(current_timestamp))+""" - vlh.time) < """+str(int(time_slice))+"""
 				and vsh_cut.time = vlh.time and vsh_cut.velov_id = vlh.velov_id """
 	results = config.DB.query(query_string)
 	return results

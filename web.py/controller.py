@@ -120,8 +120,10 @@ class getChangesBikes:
 		web.header("Content-Type", "application/json")
 		i = web.input() #on recupere le temps de rafraichissement comme ca je peux faire des tests avec plusieurs valeurs
 		#Changement d'etat des velos
-		time_slice=250 # i.time
-		model.getChangesBikes(time_slice)
+		time_slice=250 #TODO Chrarlotte: use i.time
+		bikes_updates = model.getChangesBikes(time_slice)
+		tosend = list(bikes_updates)
+		return json.dumps(tosend)
 		#TODO Selim : me renvoyer les velos dont l'etat a changer pendant les i.time dernieres secondes
 		#renvoyer une liste des velos qui ont change en json
 
