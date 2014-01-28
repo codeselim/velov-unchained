@@ -28,15 +28,48 @@ $def with (session, zones_interdites)
 		var zones = [];
 		zones.push(zone$(zone_interdite.id));
 
-		//veloVs à charger dans la BDD
-		//TODO : format d'export
-		var veloPCV01 = JSON.parse('{"lat": 45.75,"long": 4.85,"nameVelo": "PCV01","etat": 0}');
-		var veloPCV02 = JSON.parse('{"lat": 45.76,"long": 4.85,"nameVelo": "PCV02","etat": 0}');
-		var veloPCV03 = JSON.parse('{"lat": 45.75,"long": 4.86,"nameVelo": "PCV03","etat": 0}');
-		var veloVs = [];
-		veloVs.push(veloPCV01);
-		veloVs.push(veloPCV02);
-		veloVs.push(veloPCV03);
+		//Objets vélos
+		function velov(velov_id,velov_lat,velov_long){
+			this.velov_id = velov_id;
+			this.velov_lat = velov_lat;
+			this.velov_long = velov_long;
+
+			this.showVelov = showVelov;
+			function showVelov(){
+				//trace un marqueur
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(this.velov_lat, this.velov_long),
+					map: googleMap,
+					title: "Vélo disponible"
+				});
+
+				$if session:
+					var contentString = '<h6>'+this.velov_id+'</h6>'+
+					'<a onclick=bookEvent('+this.velov_id+','+this.velov_lat+','+this.velov_long+') class="button">Réserver</a>&nbsp'+
+					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>';
+				$else:
+					var contentString = '<h6>'+this.velov_id+'</h6>'+
+					'<p>Vous devez vous connecter pour effectuer une opération</p>';
+
+				var infowindow = new google.maps.InfoWindow({
+					content: contentString
+				});
+
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.open(googleMap,marker);
+				});
+			}
+		}
+
+		// //veloVs à charger dans la BDD
+		// //TODO : format d'export
+		// var veloPCV01 = JSON.parse('{"lat": 45.75,"long": 4.85,"nameVelo": "PCV01","etat": 0}');
+		// var veloPCV02 = JSON.parse('{"lat": 45.76,"long": 4.85,"nameVelo": "PCV02","etat": 0}');
+		// var veloPCV03 = JSON.parse('{"lat": 45.75,"long": 4.86,"nameVelo": "PCV03","etat": 0}');
+		// var veloVs = [];
+		// veloVs.push(veloPCV01);
+		// veloVs.push(veloPCV02);
+		// veloVs.push(veloPCV03);
 
 		var googleMap;
 		var oldLat = null;
@@ -54,9 +87,9 @@ $def with (session, zones_interdites)
 				startLocalisation();
 
 				//Affichage des vélos
-				for(var i=0; i<veloVs.length; i++){
-					showVeloVs(veloVs[i]);					
-				}
+				// for(var i=0; i<veloVs.length; i++){
+				// 	showVeloVs(veloVs[i]);					
+				// }
 
 				//Affichage des zones interdites
 				for (var i=0; i<zones.length; i++){
@@ -89,7 +122,20 @@ $def with (session, zones_interdites)
 			});
 										 
 			//centre la map aux coordonnées voulue
-			googleMap.panTo(new google.maps.LatLng(latitude, longitude));		 
+			googleMap.panTo(new google.maps.LatLng(latitude, longitude));	
+
+			jQuery.ajax({
+				url: '/getCloseBikes', // La ressource ciblée
+		       	type: 'POST', // Le type de la requête HTTP.
+		       	data: 'current_location_lat=' + latitude + '&current_location_long=' + longitude,
+		       	dataType: "json",
+		       	success: function(data){
+		       		for (var i=0; i<data.length; i++){
+		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long)
+		       			velo.showVelov();
+		       		}
+		       	}
+			}); 
 		}
 							 
 		function callbackError(error) {
@@ -112,15 +158,17 @@ $def with (session, zones_interdites)
 		function showVeloVs(velo){
 			//trace un marqueur
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(velo.lat, velo.long),
+				position: new google.maps.LatLng(velo.velov_lat, velo.velov_long),
 				map: googleMap,
 				title: "Vélo disponible"
 			});
 
 			$if session:
-				var contentString = writeContentString(velo)
+				var contentString = '<h6>'+velo.velov_id+'</h6>'+
+				'<a onclick=bookEvent(velo'+velo.velov_id+') class="button">Réserver</a>&nbsp'+
+				'<a onclick=takeEvent(velo'+velo.velov_id+') class="button">Prendre</a>';
 			$else:
-				var contentString = '<h6>'+velo.nameVelo+'</h6>'+
+				var contentString = '<h6>'+velo.velov_id+'</h6>'+
 				'<p>Vous devez vous connecter pour effectuer une opération</p>';
 
 			var infowindow = new google.maps.InfoWindow({
@@ -130,12 +178,6 @@ $def with (session, zones_interdites)
 			google.maps.event.addListener(marker, 'click', function() {
 				infowindow.open(googleMap,marker);
 			});
-		}
-
-		function writeContentString(velo){
-			return '<h6>'+velo.nameVelo+'</h6>'+
-				'<a onclick=bookEvent(velo'+velo.nameVelo+') class="button">Réserver</a>&nbsp'+
-				'<a onclick=takeEvent(velo'+velo.nameVelo+') class="button">Prendre</a>';
 		}
 
 		function drawZones(zone){
@@ -159,18 +201,18 @@ $def with (session, zones_interdites)
 
 		}
 
-		function bookEvent(velo) {
+		function bookEvent(velov_id,velov_lat,velov_long) {
 			jQuery.ajax({
 		       	url: '/book', // La ressource ciblée
 		       	type: 'POST', // Le type de la requête HTTP.
-		       	data: 'velo=' + velo,
+		       	data: 'velo=' + velov_id,
 		       	dataType: "text",
 		       	success: function(data){
 		       		if (data == "OK"){
 		       			jQuery('#bookOk').foundation('reveal', 'open');
 		       			//TODO récupérer date de la fin de la réservation
 		       			time = new Date();
-		       			printAddress(velo.lat,velo.long);
+		       			printAddress(velov_lat,velov_long);
 		       			bookTimer(time.getTime() + 300000);
 		       		}
 		       	}
@@ -194,11 +236,11 @@ $def with (session, zones_interdites)
    			});
 		}
 
-		function takeEvent(velo){
+		function takeEvent(velov_id){
 			jQuery.ajax({
 				url: '/take',
 				type: 'POST',
-				data: 'velo=' + velo,
+				data: 'velo=' + velov_id,
 				dataType: "text",
 				success: function(data){
 					if (data == "OK"){

@@ -73,9 +73,8 @@ class take:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#TODO charlotte take the veloID from the post >> i = web.input() ...
-			veloId=1
-			model.takeVelo(session.user_id, veloId)
+			i = web.input()
+			model.takeVelo(session.user_id, i.velo)
 			return "OK"
 		return "NO"
 
