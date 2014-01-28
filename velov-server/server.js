@@ -23,7 +23,6 @@ var decode = netw.decode
 
 var action_localization = function (frame_data, stream) {
 	var tile_index = get_tile_from_gps_coords(frame_data.params[2], frame_data.params[3])
-	db.select_query
 	db.insert_query(
 		t['loc_histo'],
 		['velov_id', 'time', 'tile_index', 'lat', 'long'],
@@ -37,6 +36,24 @@ var action_localization = function (frame_data, stream) {
 		function (err, result) {
 			console.log("Query has been executed.", err)
 		})
+}
+
+var action_empty_battery = function (frame_data, stream) {
+	netw.reply_velov(stream, {cmd: 'REP', confirm: 'OK', params: []}, function (sucess, original_data) {
+		// Change velov state to UNU
+		netw.message_velov(
+			{
+				velov_id: frame_data.id, /* TODO CHANGE THAT TO THE ACTUAL VELOV TO BE CONTACTED */
+				'ip': '127.0.0.1',
+				'cmd': 'CHG',
+				params: ['UNU']
+			},
+			function () {
+				console.log("Velov state changed to UNU")
+				update_velov_state_to(frame_data.id, "UNU", Date.now())
+			}
+		)
+	})
 }
 
 var action_change_state = function (frame_data, stream) {
@@ -183,6 +200,7 @@ var update_velov_state_to = function (velov_id, new_state_codename, time) {
 var frame_actions = {
 	  "LOC": action_localization
 	, "CHG": action_change_state
+	, "EMP": action_empty_battery
 }
 
 var frame_action = function (frame_data, stream) {

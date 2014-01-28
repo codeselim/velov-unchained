@@ -49,6 +49,9 @@ var message_velov = function (data_to_send, callback, tries_count) {
 			var reply_data = decode(frame)
 			console.log("messave_velov(): Launching callback")
 			callback(reply_data, data_to_send)
+			// We are not waiting for more than one reply, shut down now
+			sock.shutdown()
+			sock.close()
 		};
 	});
 
