@@ -237,6 +237,7 @@ function start (db, port) {
 			console.log("Loaded the following forbidden zones: ", FORBIDDEN_ZONES)
 
 			var server = net.createServer(function(stream) {
+				console.log("VSERV: A new device connected")
 				stream.setTimeout(0);
 				stream.setEncoding("utf8");
 
