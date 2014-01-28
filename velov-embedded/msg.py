@@ -14,6 +14,7 @@ class MsgType(object):
 	Button = 'Button'
 	Net = 'Net'
 	GpsLoc = 'GpsLoc'
+	Battery	= 'Battery'
 
 
 class Msg(object):
