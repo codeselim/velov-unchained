@@ -32,6 +32,11 @@ $def with (session, zones_interdites)
 		//Liste des objets velos
 		var velovsList = [];
 
+		var googleMap;
+		var latitude = 45.7500000;
+		var longitude = 4.8500000;
+		var infowindowOpen = null;
+
 		//Objets vélos
 		function velov(velov_id,velov_lat,velov_long){
 			this.velov_id = velov_id;
@@ -66,14 +71,16 @@ $def with (session, zones_interdites)
 				});
 
 				google.maps.event.addListener(marker, 'click', function() {
-					infowindow.open(googleMap,marker);
+					if (infowindowOpen){
+						infowindowOpen.close();
+					}
+					infowindowOpen = new google.maps.InfoWindow({
+						content: contentString
+					});
+					infowindowOpen.open(googleMap,marker);
 				});
 			}
 		}
-
-		var googleMap;
-		var latitude = 45.7500000;
-		var longitude = 4.8500000;
 
 		function initialize() {
 			if(navigator.geolocation) {
@@ -116,9 +123,11 @@ $def with (session, zones_interdites)
 				}
 				else if ('$session.is_a_reservation_taking_place' == 'True'){
 					var now = new Date();
-					if ($session.reservation_starting_time + 300000 > now.getTime()){
+					console.log(now.getTime());
+					console.log($session.reservation_starting_time*1000 + 300000);
+					if ($session.reservation_starting_time*1000 + 300000 > now.getTime()){
 						jQuery('#bookOk').foundation('reveal', 'open');
-						bookTimer($session.reservation_starting_time + 300000);
+						bookTimer($session.reservation_starting_time*1000 + 300000);
 					}
 				}
 		}
