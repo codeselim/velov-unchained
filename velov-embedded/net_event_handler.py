@@ -47,7 +47,8 @@ class NetworkEventHandler(EventHandlerInterface):
 			ans_str += "OK "
 		else:
 			ans_str += "NOK "
-		ans_str += self._serv_com.getTimestamp() + " " + self._se_state.GetState() + "\tfoo_checksum\n"
-		server_msg.socket.sendall(ans_str)
+		ans_str += self._serv_com.getTimestamp() + " " + self._se_state.GetState()
+		frame = self._serv_com.buildFrame(ans_str)
+		server_msg.socket.sendall(frame)
 		server_msg.socket.shutdown(SHUT_RDWR) # Necessary to actually close the connection, close() waits for GC to close
 		server_msg.socket.close()
