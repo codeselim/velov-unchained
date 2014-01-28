@@ -71,6 +71,17 @@ class NetComToServerModule:
 			self._print_func("Echec de la demande de délocking au serveur %s" % str(e))
 			return False
 
+	def empBatMsg(self):
+		try:
+			self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self._socket.connect((NET_HOST, NET_PORT))
+			self._socket.sendall(self.buildFrame("EMP " + str(self.getID()) + " " + self.getTimestamp() + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1])))
+			ans = self._socket.recv(4096)
+			self._socket.close()
+		except Exception as e:
+			self._print_func("Echec de l'envoie du msg batterie vide au serveur %s" % str(e))
+		return True
+
 	def sendGpsLoc(self):
 		self.sendData("LOC " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))
 
