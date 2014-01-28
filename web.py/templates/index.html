@@ -33,11 +33,11 @@ $def with (session, zones_interdites)
 		var velovsList = [];
 
 		//Objets vélos
-		function velov(velov_id,velov_lat,velov_long,count_inaccessible=0){
+		function velov(velov_id,velov_lat,velov_long){
 			this.velov_id = velov_id;
 			this.velov_lat = velov_lat;
 			this.velov_long = velov_long;
-			this.count_inaccessible = count_inaccessible;
+			this.count_inaccessible = 0;
 
 			this.showVelov = showVelov;
 			function showVelov(){
