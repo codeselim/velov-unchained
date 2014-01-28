@@ -195,7 +195,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		if (data == "OK"){
 		       			jQuery('#bookOk').foundation('reveal', 'open');
-		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent(velov_id)" class="button">Prendre maintenant</a>');
+		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
 		       			//TODO récupérer date de la fin de la réservation
 		       			time = new Date();
 		       			printAddress(velov_lat,velov_long);
