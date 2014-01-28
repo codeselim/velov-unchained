@@ -7,7 +7,7 @@ INSERT INTO task_types (id, name) VALUES (4, 'Change state to In Use');
 INSERT INTO task_types (id, name) VALUES (5, 'Change state to Off');
 INSERT INTO task_types (id, name) VALUES (6, 'Change state to Reserved');
 
-SELECT pg_catalog.setval('task_types_id_seq', 6, true);
+SELECT pg_catalog.setval('task_types_id_seq', 7, true);
 
 -- ---------------------------------------------- --------------------------------------
 
