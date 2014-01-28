@@ -10,6 +10,7 @@ import socket
 import time
 import random
 from gps_module import getCurrentPos
+import hashlib
 
 NET_HOST	=	"localhost"
 NET_PORT	=	3000
@@ -26,15 +27,22 @@ class NetComToServerModule:
 		# Fonction pour afficher des messages
 		self._print_func = print_func
 
+	def buildFrame(self, data):
+		sha1 = hashlib.sha1()
+		sha1.update(data)
+		checksum = sha1.digest()
+		return data + "\t" + checksum + "\n"
+
+
 	def sendData(self, data):
 		try:
 			self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self._socket.connect((NET_HOST, NET_PORT))
-			self._socket.sendall(data + "\t" + "foo_checksum" + "\n")
+			self._socket.sendall(self.buildFrame(data))
 			self._socket.close()
 			return True
-		except:
-			self._print_func("Echec de l'envoie du msg au serveur")
+		except Exception as e:
+			self._print_func("Echec de l'envoie du msg au serveur "  + str(e))
 			return False
 
 	def getTimestamp(self):
@@ -51,7 +59,7 @@ class NetComToServerModule:
 		try:
 			self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self._socket.connect((NET_HOST, NET_PORT))
-			self._socket.sendall("CHG " + str(self.getID()) + " " + self.getTimestamp() + " RLK" + "\t" + "foo_checksum" + "\n")
+			self._socket.sendall(self.buildFrame("CHG " + str(self.getID()) + " " + self.getTimestamp() + " RLK"))
 			ans = self._socket.recv(4096)
 			ans_words = ans.split()
 			self._socket.close()

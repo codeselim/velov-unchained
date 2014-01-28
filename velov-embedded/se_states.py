@@ -17,7 +17,7 @@ RESERVED_DELAY		= 	(5.*60.)	# En secondes
 STLN_TIMES			=	(	5.*60.,
 							20.*60.,
 						)
-STLN_DELAYS			=	(	60.0,	# Les 5 premières minutes
+STLN_DELAYS			=	(	5.0,	# Les 5 premières minutes
 							5.*60., # Les 15 minutes ensuites
 							3.*60.) # Ensuite
 
