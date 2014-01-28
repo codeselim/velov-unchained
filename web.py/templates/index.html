@@ -200,13 +200,11 @@ $def with (session, zones_interdites)
 		       	data: 'velo=' + velov_id,
 		       	dataType: "text",
 		       	success: function(data){
-		       		if (data == "OK"){
-		       			jQuery('#bookOk').foundation('reveal', 'open');
-		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
-		       			//TODO récupérer date de la fin de la réservation
-		       			time = new Date();
-		       			printAddress(velov_lat,velov_long);
-		       			bookTimer(time.getTime() + 300000);
+		       		if (data != "0"){
+		       			checkResponseVelov(data,velov_id,velov_lat,velov_long)
+		       		}
+		       		else {
+		       			jQuery('#takeNo').foundation('reveal', 'open');
 		       		}
 		       	}
 		    });
@@ -236,9 +234,43 @@ $def with (session, zones_interdites)
 				data: 'velo=' + velov_id,
 				dataType: "text",
 				success: function(data){
-					if (data == "OK"){
-		       			jQuery('#takeOk').foundation('reveal', 'open');
+					if (data != "0"){
+		       			checkResponseVelov(data,null,null,null);
 		       		}
+		       		else {
+		       			jQuery('#takeNo').foundation('reveal', 'open');
+		       		}
+				}
+			});
+		}
+
+		function checkResponseVelov(task_id,velov_id,velov_lat,velov_long){
+			infowindowOpen.setContent('<img src="static/img/load_img.gif" title="loading" />');
+			jQuery.ajax({
+   				url:'/checkResponseVelov',
+   				type: 'POST',
+   				data: 'task=' + task_id,
+				dataType: "text",
+				success: function(data){
+					if (data == "3"){
+						if (velov_id == null){
+							jQuery('#takeOk').foundation('reveal', 'open');
+						}
+						else {
+							jQuery('#bookOk').foundation('reveal', 'open');
+			       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
+			       			//TODO récupérer date de la fin de la réservation
+			       			time = new Date();
+			       			printAddress(velov_lat,velov_long);
+			       			bookTimer(time.getTime() + 300000);
+						}
+					}
+					else if (data == "4"){
+						jQuery('#takeNo').foundation('reveal', 'open');
+					}
+					else {
+						setTimeout(checkResponseVelov(task_id),1000);
+					}
 				}
 			});
 		}
@@ -345,6 +377,14 @@ $def with (session, zones_interdites)
 	<div id="takeOk" class="reveal-modal" data-reveal>
 		<h2>Vous avez un vélo en cours d'utilisation</h2>
 		<p>Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
+		<a class="alert button" href="/logout">Déconnexion</a>
+	</div>
+
+	<div id="takeNo" class="reveal-modal" data-reveal>
+		<h2>La connexion avec le vélo a échoué</h2>
+		<p>Recommencez l'opération</p>
+		<a class="alert button" onclick="jQuery('#bookOk').foundation('reveal', 'close');">Fermer</a>
+		<a class="close-reveal-modal">&#215;</a>
 	</div>
 
 	<div id="bikeInaccessibleOk" class="reveal-modal" data-reveal>
