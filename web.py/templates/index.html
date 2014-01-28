@@ -102,7 +102,7 @@ $def with (session, zones_interdites)
 				}
 				else if ('$session.is_a_reservation_taking_place' == 'True'){
 					var now = new Date();
-					if ($session.reservation_starting_time + 300000 < now.getTime()){
+					if ($session.reservation_starting_time + 300000 > now.getTime()){
 						jQuery('#bookOk').foundation('reveal', 'open');
 						bookTimer($session.reservation_starting_time + 300000);
 					}
