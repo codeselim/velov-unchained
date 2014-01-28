@@ -66,9 +66,8 @@ class book:
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
 			i = web.input()
-			model.bookVelo(session.user_id, i.velo)
-			#TODO Selim : retourner ID de la task
-			return "OK"
+			task_id = model.bookVelo(session.user_id, i.velo)
+			return task_id
 		return "0"
 
 class bookCancel:
@@ -93,7 +92,8 @@ class take:
 class checkResponseVelov:
 	def POST(self):
 		web.header("Content-Type", "text/plain")
-		i = web.input() #i.task_id contient id de la task
+		i = web.input() 
+		#task_id = #i.task_id contient id de la task
 		if authentication.is_logged(session):
 			#TODO Selim : regarder dans la BDD si le velo a repondu
 			#renvoyer le code de la BDD 2 ou 3 ou 4
@@ -133,10 +133,6 @@ class getChangesUser:
 			authentication.update_session(session)
 			tosend = session.__dict__
 		return json.dumps(tosend)
-		#Changement d'etat du user
-		#TODO Selim : recharger les variables de la session si elles ont changees
-		#ne pas le faire pour l'instant
-		#renvoyer les variables de la session qui ont change
 
 class bikeInaccessible:
 	def POST(self):
