@@ -42,6 +42,7 @@ class ThreadSE(ThreadBase):
 		self._handlers[MsgType.Locker] = LockerEventHandler(self._state, self._serv_com)
 		self._handlers[MsgType.GpsLoc] = GpsEventHandler(self._state, self._serv_com)
 		self._handlers[MsgType.Battery] = BatteryEventHandler(self._state, self._serv_com)
+		self._state._show_state()
 
 
 	def run(self):
@@ -58,9 +59,11 @@ class ThreadSE(ThreadBase):
 			else:
 			 	if msg.type in self._handlers:
 			 		handler = self._handlers[msg.type]
+			 		self._cleanScreen()
 			 		if not handler.execute(msg):
 			 			self._writeLineOnScreen("/!\ Erreur à l'exec du handler:")
 			 			self._writeLineOnScreen(handler._err_msg)
+			 		self._state._show_state()
 			 	else:
 			 		self._writeLineOnScreen("Handler introuvable: " + msg.type)
 	

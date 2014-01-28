@@ -8,6 +8,7 @@ $def with (session, zones_interdites)
 	<meta name="description" content="Gestion de vélos en ligne" />
 
 	<title>Velo'V Unchained</title>
+	<link rel="icon" href="static/img/bike.ico" type="image/x-icon">
 	<link rel="stylesheet" href="static/css/site.css" type="text/css" media="screen" charset="utf-8"/>
 	<link rel="stylesheet" href="static/css/foundation.css" type="text/css" media="screen" charset="utf-8"/>
 
@@ -28,11 +29,15 @@ $def with (session, zones_interdites)
 		var zones = [];
 		zones.push(zone$(zone_interdite.id));
 
+		//Liste des objets velos
+		var velovsList = [];
+
 		//Objets vélos
-		function velov(velov_id,velov_lat,velov_long){
+		function velov(velov_id,velov_lat,velov_long,count_inaccessible=0){
 			this.velov_id = velov_id;
 			this.velov_lat = velov_lat;
 			this.velov_long = velov_long;
+			this.count_inaccessible = count_inaccessible;
 
 			this.showVelov = showVelov;
 			function showVelov(){
@@ -40,15 +45,20 @@ $def with (session, zones_interdites)
 				var marker = new google.maps.Marker({
 					position: new google.maps.LatLng(this.velov_lat, this.velov_long),
 					map: googleMap,
-					title: "Vélo disponible"
+					title: "Vélo disponible",
+					icon: "static/img/bike-icon.png"
 				});
 
 				$if session:
-					var contentString = '<h6>'+this.velov_id+'</h6>'+
+					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<a onclick=bookEvent('+this.velov_id+','+this.velov_lat+','+this.velov_long+') class="button">Réserver</a>&nbsp'+
-					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>';
+					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>'+
+					'<br/><a onclick=bikeInaccessible('+this.velov_id+') class="button alert small">Signaler innaccesible</a>';
+					if (this.count_inaccessible > 0){
+						contentString = contentString + '<p class="alert round label">Attention ce vélo a été signalé innaccesible '+this.count_inaccessible+' fois</p>';
+					}
 				$else:
-					var contentString = '<h6>'+this.velov_id+'</h6>'+
+					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<p>Vous devez vous connecter pour effectuer une opération</p>';
 
 				var infowindow = new google.maps.InfoWindow({
@@ -117,6 +127,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		for (var i=0; i<data.length; i++){
 		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long)
+		       			velovsList.push(velo);
 		       			velo.showVelov();
 		       		}
 		       	}
@@ -138,31 +149,6 @@ $def with (session, zones_interdites)
 					alert("La géolocalisation prend trop de temps.");
 				break;
 			}
-		}
-
-		function showVeloVs(velo){
-			//trace un marqueur
-			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(velo.velov_lat, velo.velov_long),
-				map: googleMap,
-				title: "Vélo disponible"
-			});
-
-			$if session:
-				var contentString = '<h6>'+velo.velov_id+'</h6>'+
-				'<a onclick=bookEvent(velo'+velo.velov_id+') class="button">Réserver</a>&nbsp'+
-				'<a onclick=takeEvent(velo'+velo.velov_id+') class="button">Prendre</a>';
-			$else:
-				var contentString = '<h6>'+velo.velov_id+'</h6>'+
-				'<p>Vous devez vous connecter pour effectuer une opération</p>';
-
-			var infowindow = new google.maps.InfoWindow({
-				content: contentString
-			});
-
-			google.maps.event.addListener(marker, 'click', function() {
-				infowindow.open(googleMap,marker);
-			});
 		}
 
 		function drawZones(zone){
@@ -242,7 +228,7 @@ $def with (session, zones_interdites)
 			if (restTime < 0){
 				jQuery('#bookEnd').foundation('reveal', 'open');
 				//TODO : ajouter un blâme
-				//TODO : annuler la réservation ou faire qqc du genre
+				bookCancel();
 			}
 			else{
 				minutes = Math.floor(restTime / 60000);
@@ -256,6 +242,33 @@ $def with (session, zones_interdites)
 			}
 		}
 
+		function bookCancel(){
+			jQuery.ajax({
+				url: '/bookCancel',
+				type: 'POST',
+				dataType: "text",
+				success: function(data){
+					if (data == "OK"){
+		       			jQuery('#bookOk').foundation('reveal', 'close');
+		       		}
+				}
+			});
+		}
+
+		function bikeInaccessible(velo){
+			jQuery.ajax({
+				url: '/bikeInaccessible',
+				type: 'POST',
+				data: 'velo=' + velo,
+				dataType: "text",
+				success: function(data){
+					if (data == "OK"){
+		       			jQuery('#bikeInaccessibleOk').foundation('reveal', 'close');
+		       		}
+				}
+			});
+		}
+
 	</script>
 </head>
 <body>
@@ -265,7 +278,7 @@ $def with (session, zones_interdites)
 			<li class="name">
 				<h1><a href="#">Velo'V Unchained</a></h1>
 			</li>
-			<li class="toggle-topbar menu-icon"><a href="#"><span>Connexion</span></a></li> 
+			<li class="toggle-topbar menu-icon"><a href="#"><span>Login</span></a></li> 
 		</ul>
 
 		<section class="top-bar-section">
@@ -282,8 +295,8 @@ $def with (session, zones_interdites)
 					<li class="has-form">
 					<div class="row collapse">
 						<form method="post" action="/">
-							<li><input type="text" name="login" placeholder="Login" /></li>
-							<li><input type="password" name="password" placeholder="Password" /></li>
+							<li><input type="text" name="login" placeholder="Login" /></li>&nbsp
+							<li><input type="password" name="password" placeholder="Password" /></li>&nbsp
 							<li><input type="submit" class="button" name="submitlogin" value="Se connecter"></li>
 						</form>
 					</div>
@@ -297,7 +310,7 @@ $def with (session, zones_interdites)
 		<p class="lead">Il est situé <span id="addressVelo"></span></p>
 		<p class="lead">Il vous reste <span id="timeBookVelo"></span> pour prendre le vélo</p>
 		<span id="buttonTakeNow"></span>
-		<a class="alert button">Annuler la réservation</a> 
+		<a class="alert button" onclick="bookCancel()">Annuler la réservation</a> 
 	</div>
 
 	<div id="bookEnd" class="reveal-modal" data-reveal>
@@ -310,6 +323,12 @@ $def with (session, zones_interdites)
 	<div id="takeOk" class="reveal-modal" data-reveal>
 		<h2>Vous avez un vélo en cours d'utilisation</h2>
 		<p>Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
+	</div>
+
+	<div id="bikeInaccessibleOk" class="reveal-modal" data-reveal>
+		<h2>Merci</h2>
+		<p>Votre signalement a bien été pris en compte, merci de votre contribution</p>
+		<a class="alert button" onclick="/">Fermer</a>
 	</div>
 
 	<div id="googleMap"/>
