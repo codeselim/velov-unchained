@@ -60,7 +60,7 @@ class index:
 			if auth_results['login_validated'] == True :
 				authentication.register_login(session,auth_results)
 				view_msg ="successfully logged in"
-				#print session.__dict__
+				print session.__dict__
 				return render.index(session, zones_interdites)
 			else :
 				view_msg ="Bad authentication"
@@ -127,6 +127,8 @@ class getChangesBikes:
 		web.header("Content-Type", "application/json")
 		i = web.input() #on recupere le temps de rafraichissement comme ca je peux faire des tests avec plusieurs valeurs
 		#Changement d'etat des velos
+		time_slice=250 # i.time
+		model.getChangesBikes(time_slice)
 		#TODO Selim : me renvoyer les velos dont l'etat a changer pendant les i.time dernieres secondes
 		#renvoyer une liste des velos qui ont change en json
 
@@ -155,7 +157,6 @@ class getObsoleteReservations:
 		tosend = list(results)
 		web.header("Content-Type", "application/json")
 		return json.dumps(tosend)
-
 
 if __name__ == "__main__":
 	app.run()

@@ -28,15 +28,17 @@ def authenticate(variables):
 	if nb_entries == 1 :
 		row = entries[0]
 		query2_vars = dict(cur_timestamp=current_timestamp, user_id=row.id)
-		result = config.DB.select('user_action_history', query2_vars, where=" (time - $cur_timestamp) < 300 and action_id = 1 and user_id = $user_id order by time DESC limit 1 ")
+		result = config.DB.select('user_action_history', query2_vars, where=" ($cur_timestamp - time) < 300 and action_id = 1 and user_id = $user_id order by time DESC limit 1 ")
 		registration_taking_place=False
+		print "hereeee1"
 		if len(result) == 1 :
 			reservation_taking_place=True
 			reservation_start_time=result[0].time
+			print "inside if"
 		else :
 			reservation_taking_place=False
 			reservation_start_time=0
-
+			print "inside else"
 		bike_in_use=False
 		if row.renting_session_end_time  == None :
 			bike_in_use=True
@@ -113,3 +115,19 @@ def signalBikeInaccessible(velov_id):
 	query_string = " update velovs set inaccessibilty_report_nb = inaccessibilty_report_nb + 1 where id =	" + str(int(velov_id))+ " "
 	result = config.DB.query(query_string)
 	return result
+
+def getChangesBikes(time_slice):
+	current_timestamp = int(time.time())
+	query_string = """ select vlh.velov_id as velov_id, vlh.time as time, vlh.state_id as state_id,
+				states.codename as state_codename, states.name as state_name 
+				from velov_state_history vlh, 
+				states,
+				(select max(time) as time, velov_id
+				from velov_state_history 
+				where ( """+str(int(current_timestamp))+""" - time) < """+time_slice+"""
+				group by velov_id) as vsh_cut 
+				where vlh.state_id = states.id and ( """+str(int(current_timestamp))+""" - vlh.time) < """+time_slice+"""
+				and vsh_cut.time = vlh.time and vsh_cut.velov_id = vlh.velov_id """
+	results = config.DB.query(query_string)
+	return results
+
