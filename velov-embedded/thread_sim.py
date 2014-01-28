@@ -131,6 +131,9 @@ class ThreadSim(ThreadBase):
 			self._send_msg(msg)
 			# Si l'utilisateur veut quitter...
 			if inp == "quit":
+				# On arrête de faire bouger le vélo
+				if gps_module.isMoving():
+					gps_module.stopMovingBike()
 				# On ferme le serveur
 				self._server_thread.shutdown()
 				self._server_thread.join()

@@ -51,7 +51,7 @@ class ThreadSE(ThreadBase):
 			msg = self._itc_fifo.GetMsg()
 			# On traite le message
 			if msg.type == MsgType.Quit:
-				self._serv_com.close()
+				self._state.stopAllTimers()
 				break
 			else:
 			 	if msg.type in self._handlers:

@@ -49,7 +49,8 @@ if __name__ == "__main__":
 	thread_se.start()
 
 	# On attend la fin
-	thread_sim.join()
 	thread_se.join()
+	thread_sim.join()
+
 	# On nettoie
 	curses.endwin()
