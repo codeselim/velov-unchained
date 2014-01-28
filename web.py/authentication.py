@@ -23,6 +23,9 @@ def register_login(session,auth_data):
 	session.location_last_update_time = auth_data['location_last_update_time']
 	session.last_captured_latitude = auth_data['last_captured_latitude']
 	session.last_captured_longitude = auth_data['last_captured_longitude']
+	session.is_a_bike_in_use= auth_data['is_a_bike_in_use']
+	session.is_a_reservation_taking_place = auth_data['is_a_reservation_taking_place']
+	session.reservation_starting_time = auth_data['reservation_starting_time']
 
 def logout(session):
 	session.login_validated = False

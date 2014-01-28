@@ -20,7 +20,7 @@ urls = (
 app = web.application(urls, globals())
 app.internalerror = web.debugerror
 store = web.session.DiskStore('sessions')
-session = web.session.Session(app, store, initializer={ 'login_validated' : False,  'user_id' : 0, 'user_login': 0, 'firstname': 0, 'lastname': 0, 'email' : 0, 'tel_portable' : 0, 'velov_id' : 0, 'renting_session_start_time' : 0, 'renting_session_end_time' : 0, 'location_last_update_time' : 0, 'last_captured_latitude' : -1, 'last_captured_longitude' : -1 })
+session = web.session.Session(app, store, initializer={ 'login_validated' : False,  'user_id' : 0, 'user_login': 0, 'firstname': 0, 'lastname': 0, 'email' : 0, 'tel_portable' : 0, 'velov_id' : 0, 'renting_session_start_time' : 0, 'renting_session_end_time' : 0, 'is_a_bike_in_use' : False, 'is_a_reservation_taking_place':False, 'reservation_starting_time':0, 'location_last_update_time' : 0, 'last_captured_latitude' : -1, 'last_captured_longitude' : -1 })
 
 class index:
 	def GET(self):		
@@ -46,6 +46,8 @@ class index:
 		i = web.input()
 		print(i) #printing the post vars
 		# We received a POST from the login form
+		print session.__dict__
+
 		if i.submitlogin != None :
 			postVars = dict(login=i.login, password=i.password)
 			auth_results = authentication.authenticate(postVars)
