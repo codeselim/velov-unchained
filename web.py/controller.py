@@ -59,7 +59,7 @@ class index:
 			if auth_results['login_validated'] == True :
 				authentication.register_login(session,auth_results)
 				view_msg ="successfully logged in"
-				#print session.__dict__
+				print session.__dict__
 				return render.index(session, zones_interdites)
 			else :
 				view_msg ="Bad authentication"
@@ -144,7 +144,6 @@ class getObsoleteReservations:
 		tosend = list(results)
 		web.header("Content-Type", "application/json")
 		return json.dumps(tosend)
-
 
 if __name__ == "__main__":
 	app.run()
