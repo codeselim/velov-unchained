@@ -28,7 +28,7 @@ def authenticate(variables):
 	if nb_entries == 1 :
 		row = entries[0]
 		query2_vars = dict(cur_timestamp=current_timestamp, user_id=row.id)
-		result = config.DB.select('user_action_history', query2_vars, where=" (time - $cur_timestamp) < 300 and action_id = 1 and user_id = $user_id order by time DESC limit 1 ")
+		result = config.DB.select('user_action_history', query2_vars, where=" ($cur_timestamp - time) < 300 and action_id = 1 and user_id = $user_id order by time DESC limit 1 ")
 		registration_taking_place=False
 		if len(result) == 1 :
 			reservation_taking_place=True
@@ -113,3 +113,7 @@ def signalBikeInaccessible(velov_id):
 	query_string = " update velovs set inaccessibilty_report_nb = inaccessibilty_report_nb + 1 where id =	" + str(int(velov_id))+ " "
 	result = config.DB.query(query_string)
 	return result
+
+#def getChangesBikes(time_slice):
+
+
