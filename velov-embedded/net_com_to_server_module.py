@@ -26,9 +26,6 @@ class NetComToServerModule:
 		# Fonction pour afficher des messages
 		self._print_func = print_func
 
-	def close(self):
-		self._socket.close()
-
 	def sendData(self, data):
 		try:
 			self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -69,5 +66,5 @@ class NetComToServerModule:
 	def sendGpsLoc(self):
 		self.sendData("LOC " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))
 
-	def sendStlMsg(self):
+	def sendStlnMsg(self):
 		self.sendData("STL " + str(self.getID()) + " " + self.getTimestamp() + " " + str(getCurrentPos()[0]) + " " + str(getCurrentPos()[1]))

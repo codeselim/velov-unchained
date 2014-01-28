@@ -15,6 +15,8 @@ class LockerEventHandler(EventHandlerInterface):
 		if self._se_state.GetState() != SystemState.Used:
 			self._err_msg = "Le vélo n'est pas utilisé"
 			return False
+		# On envoie la position du vélo
+		self._serv_com.sendGpsLoc()
 		# On demande l'authorisation au vélo
 		if self._serv_com.reqLockAth():
 			self._se_state.setState(SystemState.Available)

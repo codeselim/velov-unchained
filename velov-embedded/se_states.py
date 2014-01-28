@@ -49,7 +49,7 @@ class SystemState:
 
 	# Associe à chaque état les états sources possible
 	Sources = { Used 		: (Unlockable),
-				Stolen 		: (Available, Unusable, Reserved, Unlockable),
+				Stolen 		: (Available, Unusable, Reserved, Unlockable, Stolen),
 				Unusable 	: (Available, Off),
 				Reserved	: (Available),
 				Unlockable	: (Reserved, Available),
@@ -62,7 +62,7 @@ class SystemState:
 		"""
 		Initialisation
 		"""
-		self._state = default_state
+		self._state = None
 		self._print_func = print_func
 		self._clean_func = clean_func
 		self._timer = None
@@ -72,20 +72,29 @@ class SystemState:
 		self._prev_pos = []
 		for c in gps_module.getCurrentPos():
 			self._prev_pos.append(c)
+		self.setState(default_state)
 
 	def setState(self, new_state):
 		"""
 		Change l'état du vélo
 		"""
-		if self._state not in SystemState.Sources[new_state]:
+		if (self._state is not None) and (self._state not in SystemState.Sources[new_state]):
 			return False
 		
+		# On détermine si le système est nouvellement vérouillé
+		new_lock = False
+		if self._state == None:
+			new_lock = True
+		elif self._state == SystemState.Used or self._state == SystemState.Off:
+			if new_state != SystemState.Used and new_state != SystemState.Off:
+				new_lock = True
+		# On change l'état
 		self._state = new_state
 		# On lance le système anti-vol
-		if (new_state != SystemState.Used) or (new_state != SystemState.Off):
+		if new_lock:
 			self._locked_time = time.time()
 			self._stln_start()
-		else:
+		elif new_state == SystemState.Used or new_state == SystemState.Off:
 			self._stln_stop()
 		# Si il y a des triggers associés à ce vélo, on les appellent
 		if new_state in SystemState.Triggers:
@@ -148,7 +157,9 @@ class SystemState:
 	#
 	# Trigger pour le passage en mode Used
 	def _used_trigger(self):
-		self._timer.cancel()
+		if self._timer is not None:
+			self._timer.cancel()
+			self._timer = None
 		self._show_state()
 
 	#
@@ -162,37 +173,54 @@ class SystemState:
 	# Check le vole
 	def _stln_start(self):
 		# Vérifier si le vélo à bougé
-		i = 0
-		move = False
-		for c in gps_module.getCurrentPos():
-			if c != self._prev_pos[i]:
-				move = True
-			gps_module._prev_pos[i] = c
-			i += 1
+		move = self._updateCurrentPos()
 		if move:
-			pass
-			#TODO
+			self.setState(SystemState.Stolen)
 		# On remet le timer
 		i = 0
 		found = False
 		while i < len(STLN_TIMES):
 			if time.time() - self._locked_time < STLN_TIMES[i]:
-				self._stln_timer = Timer(STLN_DELAYS[i], _stln_rtn)
+				self._stln_timer = Timer(STLN_DELAYS[i], self._stln_start)
 				self._stln_timer.start()
 				found = True
 				break
 			i += 1
-		if found:
-			self._stln_timer = Timer(STLN_DELAYS[-1], _stln_rtn)
+		if not found:
+			self._stln_timer = Timer(STLN_DELAYS[-1], self._stln_start)
 			self._stln_timer.start()
 
 	def _stln_stop(self):
-		self._stln_timer.cancel()
+		if self._stln_timer is not None:
+			self._stln_timer.cancel()
+			self._stln_timer = None
+
+	def _stln_trigger(self):
+		self._serv_com.sendStlnMsg()
+		self._show_state()
+
+	def _updateCurrentPos(self):
+		i = 0
+		move = False
+		for c in gps_module.getCurrentPos():
+			if c != self._prev_pos[i]:
+				move = True
+			self._prev_pos[i] = c
+			i += 1
+		return move
+
+	def stopAllTimers(self):
+		if self._timer is not None:
+			self._timer.cancel()
+			self._timer = None
+		if self._stln_timer is not None:
+			self._stln_timer.cancel()
+			self._stln_timer = None
 
 	# Triggers
 	# Méthode à appeler lorsque l'on entre dans un état
 	Triggers = {	Used		: _used_trigger,
-					Stolen 		: _show_state,
+					Stolen 		: _stln_trigger,
 					Unusable 	: _show_state,
 					Reserved	: _reserved_trigger,
 					Unlockable	: _unlockable_trigger,
