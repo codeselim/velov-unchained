@@ -63,13 +63,39 @@ def getCloseBikes(current_lat, current_long):
 	tile_index = tools.tileIndex(current_lat, current_long)
 	search_depth = 3
 	tile_indexes = tools.zonePerimeter(tile_index, search_depth) #@TODO use tileindex in fetching bikes... 
-	query = """ select vlh.velov_id as velov_id,
-				vlh.lat as velov_lat, vlh.long as velov_long,
-				vlh.time as location_history_time, vsh.time as state_history_time,
-				vsh.state_id as state_id, states.codename as state_codename, states.name as state_name 
-				from velov_state_history vsh, velov_location_history vlh, states
-				where vsh.velov_id = vlh.velov_id and states.id = vsh.state_id and vsh.state_id = 7 
-				order by vsh.time DESC """
+	# query = """ select vlh.velov_id as velov_id,
+	# 			vlh.lat as velov_lat, vlh.long as velov_long,
+	# 			vlh.time as location_history_time, vsh.time as state_history_time,
+	# 			vsh.state_id as state_id, states.codename as state_codename, states.name as state_name 
+	# 			from velov_state_history vsh, velov_location_history vlh, states
+	# 			where vsh.velov_id = vlh.velov_id and states.id = vsh.state_id and vsh.state_id = 7 
+	# 			order by vsh.time DESC """
+	query = """ select vlhb.velov_id as velov_id,
+				vlhb.lat as velov_lat, vlhb.long as velov_long,
+				vlhb.time as location_history_time, vsha.time as state_history_time,
+				vsha.state_id as state_id, states.codename as state_codename, states.name as state_name
+				from
+				(select vsh.velov_id as velov_id, vsh.time as time, state_id 
+				from velov_state_history as vsh,  
+				(select  max(vsh1.time) as time , vsh1.velov_id
+				from velov_state_history vsh1
+				where vsh1.state_id=7
+				group by vsh1.velov_id) as vsh_cut
+				where vsh.velov_id = vsh_cut.velov_id 
+				and vsh_cut.time = vsh.time) as vsha
+				,
+				(select vlh.velov_id as velov_id, vlh.time as time, vlh.tile_index as tile_index, lat, long 
+				from velov_location_history as vlh, 
+				(select max(vlh1.time) as time, vlh1.velov_id
+				from velov_location_history as vlh1
+				group by vlh1.velov_id) as vlh_cut
+				where vlh.velov_id = vlh_cut.velov_id 
+				and vlh_cut.time = vlh.time) as vlhb
+				,
+				states
+				where vsha.velov_id = vlhb.velov_id and states.id = vsha.state_id and vsha.state_id = 7 
+				order by vsha.time DESC """
+
 	results = config.DB.query(query)
 	return results
 
