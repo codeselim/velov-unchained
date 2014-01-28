@@ -99,11 +99,9 @@ class logout:
 
 class getCloseBikes:
 	def POST(self):
-		#i = web.input()
-		#current_lat = i.current_location_lat
-		#current_long = i.current_location_long
-		current_lat = 45.767433
-		current_long = 4.875676
+		i = web.input()
+		current_lat = i.current_location_lat
+		current_long = i.current_location_long
 		bikes = model.getCloseBikes(current_lat, current_long)
 		tosend = list(bikes)
 		web.header("Content-Type", "application/json")
@@ -123,6 +121,7 @@ class getChangesUser:
 		i = web.input() #on recupere le temps de rafraichissement comme ca je peux faire des tests avec plusieurs valeurs
 		#Changement d'etat du user
 		#TODO Selim : recharger les variables de la session si elles ont changees
+		#ne pas le faire pour l'instant
 		#renvoyer les variables de la session qui ont change
 
 
