@@ -34,7 +34,7 @@ SELECT pg_catalog.setval('task_types_id_seq', 5, true);
 
 -- ---------------------------------------------- --------------------------------------
 INSERT INTO users ( id, login, password, creation_date, is_disabled, firstname, lastname, sex, birth_date, address, code_postal, ville, email, tel_portable, membership_exipry_date) 
-VALUES (1, 'selimabisaber', '12345678', 1390492193016, FALSE, 'selim', 'saber', 'm', '2000-08-24 14:00:00', '20 Avenue xyz', '69100', 'Villeurbanne', 'selimabisaber@gmail.com', '614184746', 1453900731 );
+VALUES (1, 'test3', 'test3', 1390492193016, FALSE, 'selim', 'saber', 'm', '2000-08-24 14:00:00', '20 Avenue xyz', '69100', 'Villeurbanne', 'selimabisaber@gmail.com', '614184746', 1453900731 );
 INSERT INTO users ( id, login, password, creation_date, is_disabled, firstname, lastname, sex, birth_date, address, code_postal, ville, email, tel_portable, membership_exipry_date) 
 VALUES (2, 'test', 'test', 1390492193016, FALSE, 'Jane', 'Smith', 'f', '1988-02-24 13:00:00', '2 Avenue xyz', '69003', 'Lyon', 'selimabisaber@gmail.com', '614184746', 1453900731 );
 INSERT INTO users ( id, login, password, creation_date, is_disabled, firstname, lastname, sex, birth_date, address, code_postal, ville, email, tel_portable, membership_exipry_date) 

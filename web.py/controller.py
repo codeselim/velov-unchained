@@ -54,7 +54,7 @@ class index:
 			postVars = dict(login=i.login, password=i.password)
 			auth_results = authentication.authenticate(postVars)
 			# print(auth_results)
-			if auth_results['login_validated'] == True:
+			if auth_results['login_validated'] == True :
 				authentication.register_login(session,auth_results)
 				view_msg ="successfully logged in"
 				print session.__dict__
