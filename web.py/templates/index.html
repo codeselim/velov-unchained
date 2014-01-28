@@ -95,7 +95,15 @@ $def with (session, zones_interdites)
 				alert('Votre navigateur ne supporte pas la géolocalisation HTML5');
 			}
 
-			//Ouverture de pop-up si utilisateur a une action en cours
+			$if session:
+				//Ouverture de pop-up si utilisateur a une action en cours
+				if ('$session.is_a_bike_in_use' == 'True'){
+					jQuery('#takeOk').foundation('reveal', 'open');
+				}
+				else if ('$session.is_a_reservation_taking_place' == 'True'){
+					jQuery('#bookOk').foundation('reveal', 'open');
+					bookTimer($session.reservation_starting_time + 300000);
+				}
 		}
 		google.maps.event.addDomListener(window, 'load', initialize);
 									 
