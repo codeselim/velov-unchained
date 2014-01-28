@@ -17,7 +17,7 @@ RESERVED_DELAY		= 	(5.*60.)	# En secondes
 STLN_TIMES			=	(	5.*60.,
 							20.*60.,
 						)
-STLN_DELAYS			=	(	5.0,	# Les 5 premières minutes
+STLN_DELAYS			=	(	60.0,	# Les 5 premières minutes
 							5.*60., # Les 15 minutes ensuites
 							3.*60.) # Ensuite
 
@@ -121,7 +121,6 @@ class SystemState:
 		"""
 		self._timer = Timer(UNLOCKABLE_DELAY, self._relock)
 		self._timer.start()
-		self._show_state()
 
 	def _show_state(self):
 		"""
@@ -160,14 +159,12 @@ class SystemState:
 		if self._timer is not None:
 			self._timer.cancel()
 			self._timer = None
-		self._show_state()
 
 	#
 	# Trigger pour l'état réservé
 	def _reserved_trigger(self):
 		self._timer = Timer(RESERVED_DELAY, self._relock)
 		self._timer.start()
-		self._show_state()
 
 	#
 	# Check le vole
@@ -196,8 +193,9 @@ class SystemState:
 			self._stln_timer = None
 
 	def _stln_trigger(self):
-		self._serv_com.sendStlnMsg()
+		self._clean_func()
 		self._show_state()
+		self._serv_com.sendStlnMsg()
 
 	def _updateCurrentPos(self):
 		i = 0
@@ -221,11 +219,7 @@ class SystemState:
 	# Méthode à appeler lorsque l'on entre dans un état
 	Triggers = {	Used		: _used_trigger,
 					Stolen 		: _stln_trigger,
-					Unusable 	: _show_state,
 					Reserved	: _reserved_trigger,
 					Unlockable	: _unlockable_trigger,
-					Available	: _show_state,
-					Off 		: _show_state,
-					Unknown		: _show_state
 	}
 
