@@ -16,6 +16,7 @@ urls = (
     '/book', 'book',
     '/bookCancel', 'bookCancel',
     '/take', 'take',
+    '/checkTakeOk','checkTakeOk',
     '/getCloseBikes', 'getCloseBikes',
     '/bikeInaccessible','bikeInaccessible',
     '/getObsoleteReservations', 'getObsoleteReservations',
@@ -73,8 +74,9 @@ class book:
 		if authentication.is_logged(session):
 			i = web.input()
 			model.bookVelo(session.user_id, i.velo)
+			#TODO Selim : retourner ID de la task
 			return "OK"
-		return "NO"
+		return "0"
 
 class bookCancel:
 	def POST(self):
@@ -91,8 +93,19 @@ class take:
 		if authentication.is_logged(session):
 			i = web.input()
 			model.takeVelo(session.user_id, i.velo)
+			#TODO Selim : retourner ID de la task
 			return "OK"
-		return "NO"
+		return "0"
+
+class checkResponseVelov:
+	def POST(self):
+		web.header("Content-Type", "text/plain")
+		i = web.input() #i.task_id contient id de la task
+		if authentication.is_logged(session):
+			#TODO Selim : regarder dans la BDD si le velo a repondu
+			#renvoyer le code de la BDD 2 ou 3 ou 4
+			return "OK"
+		return "0"
 
 class logout:
 	def GET(self):
