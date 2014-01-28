@@ -77,7 +77,7 @@ class bookCancel:
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
 			#TODO Selim : annuler reservation
-			#pas d'argument car tu peux retrouver l'id du user avec la session et donc la réservation en cours
+			#pas d'argument car tu peux retrouver l'id du user avec la session et donc la reservation en cours
 			return "OK"
 		return "NO"
 
