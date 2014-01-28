@@ -73,7 +73,8 @@ def getCloseBikes(current_lat, current_long):
 	query = """ select vlhb.velov_id as velov_id,
 				vlhb.lat as velov_lat, vlhb.long as velov_long,
 				vlhb.time as location_history_time, vsha.time as state_history_time,
-				vsha.state_id as state_id, states.codename as state_codename, states.name as state_name
+				vsha.state_id as state_id, states.codename as state_codename, states.name as state_name,
+				velovs.inaccessibilty_report_nb as inaccessibilty_report_nb
 				from
 				(select vsh.velov_id as velov_id, vsh.time as time, state_id 
 				from velov_state_history as vsh,  
@@ -92,8 +93,8 @@ def getCloseBikes(current_lat, current_long):
 				where vlh.velov_id = vlh_cut.velov_id 
 				and vlh_cut.time = vlh.time) as vlhb
 				,
-				states
-				where vsha.velov_id = vlhb.velov_id and states.id = vsha.state_id and vsha.state_id = 7 
+				states , velovs
+				where vsha.velov_id = vlhb.velov_id and states.id = vsha.state_id and vsha.state_id = 7 and vsha.velov_id = velovs.id
 				order by vsha.time DESC """
 
 	results = config.DB.query(query)

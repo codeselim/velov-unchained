@@ -102,8 +102,8 @@ class logout:
 class getCloseBikes:
 	def POST(self):
 		i = web.input()
-		current_lat = i.current_location_lat
-		current_long = i.current_location_long
+		current_lat = 4 #i.current_location_lat
+		current_long = 45 #i.current_location_long
 		bikes = model.getCloseBikes(current_lat, current_long)
 		tosend = list(bikes)
 		web.header("Content-Type", "application/json")
