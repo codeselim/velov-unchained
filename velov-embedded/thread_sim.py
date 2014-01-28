@@ -21,6 +21,7 @@ from cmd_interpreter_interface import CmdInterpreterInterface
 from button_cmd_interpreter import ButtonCmdInterpreter
 from locker_cmd_interpreter import LockerCmdInterpreter
 from gps_cmd_interpreter import GpsCmdInterpreter
+from bat_cmd_interpreter import BatteryCmdInterpreter
 import gps_module
 
 
@@ -96,6 +97,7 @@ class ThreadSim(ThreadBase):
 		self._interpreters["b"] = ButtonCmdInterpreter()
 		self._interpreters["l"] = LockerCmdInterpreter()
 		self._interpreters["gl"] = GpsCmdInterpreter()
+		self._interpreters["be"] = BatteryCmdInterpreter()
 		# On met en place le serveur réseau
 		NetworkServerHandler.fifo = fifo
 		self._server_thread = NetworkServerThread(SERVER_PORT, SERVER_HOST, NetworkServerHandler)

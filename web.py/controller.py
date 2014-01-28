@@ -3,6 +3,7 @@ import web, model
 import authentication
 import view, config
 import json
+import time
 from view import render
 
 web.config.debug = False
@@ -19,7 +20,7 @@ urls = (
 app = web.application(urls, globals())
 app.internalerror = web.debugerror
 store = web.session.DiskStore('sessions')
-session = web.session.Session(app, store, initializer={ 'login_validated' : False,  'user_id' : 0, 'user_login': 0, 'firstname': 0, 'lastname': 0, 'email' : 0, 'tel_portable' : 0})
+session = web.session.Session(app, store, initializer={ 'login_validated' : False,  'user_id' : 0, 'user_login': 0, 'firstname': 0, 'lastname': 0, 'email' : 0, 'tel_portable' : 0, 'velov_id' : 0, 'renting_session_start_time' : 0, 'renting_session_end_time' : 0, 'location_last_update_time' : 0, 'last_captured_latitude' : -1, 'last_captured_longitude' : -1 })
 
 class index:
 	def GET(self):		
@@ -63,9 +64,8 @@ class book:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#TODO charlotte take the veloID from the post >> i = web.input() ...
-			veloId=1
-			model.bookVelo(session.user_id, veloId)
+			i = web.input()
+			model.bookVelo(session.user_id, i.velo)
 			return "OK"
 		return "NO"
 
@@ -73,9 +73,8 @@ class take:
 	def POST(self):
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
-			#TODO charlotte take the veloID from the post >> i = web.input() ...
-			veloId=1
-			model.takeVelo(session.user_id, veloId)
+			i = web.input()
+			model.takeVelo(session.user_id, i.velo)
 			return "OK"
 		return "NO"
 
