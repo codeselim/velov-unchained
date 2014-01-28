@@ -283,3 +283,24 @@ ALTER TABLE ONLY user_renting_sessions ADD CONSTRAINT user_renting_sessions_user
 ALTER TABLE ONLY user_renting_sessions ALTER COLUMN id SET DEFAULT nextval('user_renting_sessions_id_seq'::regclass);
 
 -- --------------------------------- ---------------------------------
+
+CREATE TABLE user_warning_history (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    action_history_id integer NOT NULL
+);
+ALTER TABLE public.user_warning_history OWNER TO velovunchained;
+CREATE SEQUENCE user_warning_history_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.user_warning_history_id_seq OWNER TO velovunchained;
+ALTER SEQUENCE user_warning_history_id_seq OWNED BY user_warning_history.id;
+ALTER TABLE ONLY user_warning_history ADD CONSTRAINT user_warning_history_pk PRIMARY KEY (id);
+ALTER TABLE ONLY user_warning_history ADD CONSTRAINT user_warning_history_user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY user_warning_history ADD CONSTRAINT user_warning_history_action_history_id_fk FOREIGN KEY (action_history_id) REFERENCES user_action_history(id);
+ALTER TABLE ONLY user_warning_history ALTER COLUMN id SET DEFAULT nextval('user_warning_history_id_seq'::regclass);
+
+----------------------------------------------------------------------

@@ -86,9 +86,10 @@ INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) V
 
 -- ---------------------------------------
 
-INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (1, 2, 1, 1390828731); --julien
+INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (1, 2, 1, 1390828731); --julien, ordre chronologique 	 	
 INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (1, 1, 12, 1390828761); --julien
 INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (2, 1, 12, 1390828771); --julien
+INSERT INTO user_action_history (action_id, user_id, velov_id, time) VALUES (1, 2, 1, 1390829771); --julien
 
 ---------------------------------------------
 INSERT INTO velov_state_history (id,  velov_id, time, state_id) VALUES (1, 1, 1390828731, 7);  -- bike id=1 IN USE
