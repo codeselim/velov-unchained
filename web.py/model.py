@@ -69,7 +69,7 @@ def getCloseBikes(current_lat, current_long):
 				vsh.state_id as state_id, states.codename as state_codename, states.name as state_name 
 				from velov_state_history vsh, velov_location_history vlh, states
 				where vsh.velov_id = vlh.velov_id and states.id = vsh.state_id and vsh.state_id = 7 
-				order by vsh.time DESC"""
+				order by vsh.time DESC """
 	results = config.DB.query(query)
 	return results
 

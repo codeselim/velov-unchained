@@ -50,15 +50,14 @@ class index:
 		i = web.input()
 		print(i) #printing the post vars
 		# We received a POST from the login form
-		print session.__dict__
-
 		if i.submitlogin != None :
 			postVars = dict(login=i.login, password=i.password)
 			auth_results = authentication.authenticate(postVars)
 			# print(auth_results)
-			if auth_results['login_validated'] == True:
+			if auth_results['login_validated'] == True :
 				authentication.register_login(session,auth_results)
 				view_msg ="successfully logged in"
+				print session.__dict__
 				return render.index(session, zones_interdites)
 			else :
 				view_msg ="Bad authentication"
