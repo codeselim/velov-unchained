@@ -21,7 +21,8 @@ urls = (
     '/bikeInaccessible','bikeInaccessible',
     '/getObsoleteReservations', 'getObsoleteReservations',
     '/getChangesBikes','getChangesBikes',
-    '/getChangesUser','getChangesUser'
+    '/getChangesUser','getChangesUser',
+    '/checkResponseVelov', 'checkResponseVelov'
 )
 
 app = web.application(urls, globals())
@@ -92,11 +93,15 @@ class checkResponseVelov:
 	def POST(self):
 		web.header("Content-Type", "text/plain")
 		i = web.input() 
-		#task_id = #i.task_id contient id de la task
+		task_id = i.task_id
 		if authentication.is_logged(session):
-			#TODO Selim : regarder dans la BDD si le velo a repondu
-			#renvoyer le code de la BDD 2 ou 3 ou 4
-			return "OK"
+			status_code = model.getVeloTaskStatus(i.task_id)
+			# Help:
+			# -> 1 : 'todo' : 'Task to be picked up and processed.
+			# -> 2 : 'inprogress' : 'The task is currently being processed / executed.
+			# -> 3 : 'success' : 'The task has sucessfully completed.
+			# -> 4 : 'failure' : 'The task could not be completed successfully.
+			return status_code
 		return "0"
 
 class logout:
@@ -107,8 +112,8 @@ class logout:
 class getCloseBikes:
 	def POST(self):
 		i = web.input()
-		current_lat = 4 #i.current_location_lat
-		current_long = 45 #i.current_location_long
+		current_lat = 4 #i.current_location_lat #Not in use
+		current_long = 45 #i.current_location_long #Not in use
 		bikes = model.getCloseBikes(current_lat, current_long)
 		tosend = list(bikes)
 		web.header("Content-Type", "application/json")
@@ -119,7 +124,7 @@ class getChangesBikes:
 		web.header("Content-Type", "application/json")
 		i = web.input() #on recupere le temps de rafraichissement comme ca je peux faire des tests avec plusieurs valeurs
 		#Changement d'etat des velos
-		time_slice=250 #TODO Chrarlotte: use i.time
+		time_slice=300 #TODO Chrarlotte: use i.time
 		bikes_updates = model.getChangesBikes(time_slice)
 		tosend = list(bikes_updates)
 		return json.dumps(tosend)

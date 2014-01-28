@@ -59,6 +59,7 @@ INSERT INTO user_actions (id, name) VALUES (2, 'Unlock authorization');
 INSERT INTO user_actions (id, name) VALUES (3, 'Unlock action');
 INSERT INTO user_actions (id, name) VALUES (4, 'Lock authorization');
 INSERT INTO user_actions (id, name) VALUES (5, 'Lock action');
+INSERT INTO user_actions (id, name) VALUES (6, 'Cancel Reservation');
 
 SELECT pg_catalog.setval('states_id_seq', 6, true);
 -- ---------------------------------------------- --------------------------------------

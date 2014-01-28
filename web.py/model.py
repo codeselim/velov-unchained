@@ -55,7 +55,11 @@ def takeVelo(userID, veloID):
 def bookVelo(userID, veloID):
 	current_timestamp = int(time.time())
 	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=6, user_id=userID, velov_id=veloID, action_time=current_timestamp);
-	return sequence_id	
+	return sequence_id
+
+def getVeloTaskStatus(task_id):
+	results = config.DB.query("SELECT task_state_id FROM velov_tasks WHERE id = "+str(int(task_id))+" ")
+	return results[0].task_state_id
 
 def getZoneInterdites():
 	entries = config.DB.select('zones_interdites')
