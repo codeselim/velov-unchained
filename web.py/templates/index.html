@@ -72,14 +72,14 @@ $def with (session, zones_interdites)
 		}
 
 		var googleMap;
-		var oldLat = null;
-		var oldLng = null;
+		var latitude = 45.7500000;
+		var longitude = 4.8500000;
 
 		function initialize() {
 			if(navigator.geolocation) {
 			//initialise la map
 				var mapOptions = {
-					center: new google.maps.LatLng(45.7500000, 4.8500000),
+					center: new google.maps.LatLng(latitude, longitude),
 					zoom: 13
 				};
 				googleMap = new google.maps.Map(document.getElementById("googleMap"),mapOptions);
@@ -94,6 +94,20 @@ $def with (session, zones_interdites)
 			else {
 				alert('Votre navigateur ne supporte pas la géolocalisation HTML5');
 			}
+
+			jQuery.ajax({
+				url: '/getCloseBikes', // La ressource ciblée
+		       	type: 'POST', // Le type de la requête HTTP.
+		       	data: 'current_location_lat=' + latitude + '&current_location_long=' + longitude,
+		       	dataType: "json",
+		       	success: function(data){
+		       		for (var i=0; i<data.length; i++){
+		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long)
+		       			velovsList.push(velo);
+		       			velo.showVelov();
+		       		}
+		       	}
+			}); 
 
 			$if session:
 				//Ouverture de pop-up si utilisateur a une action en cours
@@ -117,8 +131,8 @@ $def with (session, zones_interdites)
 							 
 		function callbackSuccess(position) {
 			//récupère la latitude et la longitude
-			var latitude = position.coords.latitude;
-			var longitude = position.coords.longitude;
+			latitude = position.coords.latitude;
+			longitude = position.coords.longitude;
 											 
 			//trace un marqueur
 			var marker = new google.maps.Marker({
@@ -130,19 +144,6 @@ $def with (session, zones_interdites)
 			//centre la map aux coordonnées voulue
 			googleMap.panTo(new google.maps.LatLng(latitude, longitude));	
 
-			jQuery.ajax({
-				url: '/getCloseBikes', // La ressource ciblée
-		       	type: 'POST', // Le type de la requête HTTP.
-		       	data: 'current_location_lat=' + latitude + '&current_location_long=' + longitude,
-		       	dataType: "json",
-		       	success: function(data){
-		       		for (var i=0; i<data.length; i++){
-		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long)
-		       			velovsList.push(velo);
-		       			velo.showVelov();
-		       		}
-		       	}
-			}); 
 		}
 							 
 		function callbackError(error) {
