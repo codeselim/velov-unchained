@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 #This file is the front controller
 import web, model
 import authentication
