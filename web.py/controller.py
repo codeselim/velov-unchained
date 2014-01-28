@@ -39,6 +39,7 @@ class index:
 			return render.index(session, zones_interdites)
 		else :
 			print("the user is not logged in")
+			authentication.logout(session): #clearing any remaining sessions
 			return render.index(None, zones_interdites)
 
 	def POST(self):
