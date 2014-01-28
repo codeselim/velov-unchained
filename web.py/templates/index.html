@@ -61,16 +61,6 @@ $def with (session, zones_interdites)
 			}
 		}
 
-		// //veloVs à charger dans la BDD
-		// //TODO : format d'export
-		// var veloPCV01 = JSON.parse('{"lat": 45.75,"long": 4.85,"nameVelo": "PCV01","etat": 0}');
-		// var veloPCV02 = JSON.parse('{"lat": 45.76,"long": 4.85,"nameVelo": "PCV02","etat": 0}');
-		// var veloPCV03 = JSON.parse('{"lat": 45.75,"long": 4.86,"nameVelo": "PCV03","etat": 0}');
-		// var veloVs = [];
-		// veloVs.push(veloPCV01);
-		// veloVs.push(veloPCV02);
-		// veloVs.push(veloPCV03);
-
 		var googleMap;
 		var oldLat = null;
 		var oldLng = null;
@@ -85,11 +75,6 @@ $def with (session, zones_interdites)
 				googleMap = new google.maps.Map(document.getElementById("googleMap"),mapOptions);
 
 				startLocalisation();
-
-				//Affichage des vélos
-				// for(var i=0; i<veloVs.length; i++){
-				// 	showVeloVs(veloVs[i]);					
-				// }
 
 				//Affichage des zones interdites
 				for (var i=0; i<zones.length; i++){
@@ -210,6 +195,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		if (data == "OK"){
 		       			jQuery('#bookOk').foundation('reveal', 'open');
+		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
 		       			//TODO récupérer date de la fin de la réservation
 		       			time = new Date();
 		       			printAddress(velov_lat,velov_long);
@@ -255,13 +241,18 @@ $def with (session, zones_interdites)
 			restTime = (time - now.getTime());
 			if (restTime < 0){
 				jQuery('#bookEnd').foundation('reveal', 'open');
+				//TODO : ajouter un blâme
+				//TODO : annuler la réservation ou faire qqc du genre
 			}
 			else{
 				minutes = Math.floor(restTime / 60000);
 				secondes = Math.round((restTime - minutes)/1000) % 60;
+				if (secondes == 0){
+					minutes++;
+				}
 				timeHTML = minutes + " min " + secondes + " sec";
 				document.getElementById("timeBookVelo").innerHTML = timeHTML;
-				setTimeout("bookTimer(time)",1000);
+				setTimeout("bookTimer(time.getTime() + 300000)",1000);
 			}
 		}
 
@@ -305,13 +296,14 @@ $def with (session, zones_interdites)
 		<h2>Vous avez réservé un vélo</h2>
 		<p class="lead">Il est situé <span id="addressVelo"></span></p>
 		<p class="lead">Il vous reste <span id="timeBookVelo"></span> pour prendre le vélo</p>
-		<a onclick="takeEvent()" class="button">Prendre maintenant</a>
+		<span id="buttonTakeNow"></span>
 		<a class="alert button">Annuler la réservation</a> 
 	</div>
 
 	<div id="bookEnd" class="reveal-modal" data-reveal>
 		<h2>Vous avez dépassé le temps imparti</h2>
 		<p class="lead">Vous aviez 5 minutes pour prendre le vélo, vous allez avoir un blâme</span></p>
+		<a class="alert button" onclick="jQuery('#bookOk').foundation('reveal', 'close');">Fermer</a> 
 		<a class="close-reveal-modal">&#215;</a>
 	</div>
 
