@@ -84,9 +84,8 @@ class take:
 		web.header("Content-Type", "text/plain") 
 		if authentication.is_logged(session):
 			i = web.input()
-			model.takeVelo(session.user_id, i.velo)
-			#TODO Selim : retourner ID de la task
-			return "OK"
+			task_id = model.takeVelo(session.user_id, i.velo)
+			return task_id
 		return "0"
 
 class checkResponseVelov:

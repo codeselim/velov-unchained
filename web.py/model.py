@@ -50,6 +50,7 @@ def authenticate(variables):
 def takeVelo(userID, veloID):
 	current_timestamp = int(time.time())
 	sequence_id = config.DB.insert('velov_tasks', task_state_id=1, type=1, user_id=userID, velov_id=veloID, action_time=current_timestamp);
+	return sequence_id
 
 def bookVelo(userID, veloID):
 	current_timestamp = int(time.time())
