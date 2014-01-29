@@ -231,6 +231,7 @@ $def with (session, zones_interdites)
 		}
 
 		function takeEvent(velov_id){
+			infowindowOpen.close();
 			jQuery.ajax({
 				url: '/take',
 				type: 'POST',
