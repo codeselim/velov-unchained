@@ -122,6 +122,8 @@ class SystemState:
 		"""
 		Trigger appelé lorsque le vélo devient délockable
 		"""
+		if self._timer is not None:
+			self._timer.cancel()
 		self._timer = Timer(UNLOCKABLE_DELAY, self._relock)
 		self._timer.start()
 
@@ -217,6 +219,7 @@ class SystemState:
 		if self._stln_timer is not None:
 			self._stln_timer.cancel()
 			self._stln_timer = None
+
 
 	# Triggers
 	# Méthode à appeler lorsque l'on entre dans un état
