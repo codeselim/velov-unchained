@@ -38,11 +38,11 @@ $def with (session, zones_interdites)
 		var infowindowOpen = null;
 
 		//Objets vélos
-		function velov(velov_id,velov_lat,velov_long){
+		function velov(velov_id,velov_lat,velov_long,count_inaccessible){
 			this.velov_id = velov_id;
 			this.velov_lat = velov_lat;
 			this.velov_long = velov_long;
-			this.count_inaccessible = 0;
+			this.count_inaccessible = count_inaccessible;
 
 			this.showVelov = showVelov;
 			function showVelov(){
@@ -60,7 +60,7 @@ $def with (session, zones_interdites)
 					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>'+
 					'<br/><a onclick=bikeInaccessible('+this.velov_id+') class="button alert small">Signaler innaccesible</a>';
 					if (this.count_inaccessible > 0){
-						contentString = contentString + '<p class="alert round label">Attention ce vélo a été signalé innaccesible '+this.count_inaccessible+' fois</p>';
+						contentString = contentString + '<br/><p class="alert round label">Attention ce vélo a été signalé innaccesible '+this.count_inaccessible+' fois</p>';
 					}
 				$else:
 					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
@@ -87,7 +87,7 @@ $def with (session, zones_interdites)
 			//initialise la map
 				var mapOptions = {
 					center: new google.maps.LatLng(latitude, longitude),
-					zoom: 13
+					zoom: 14
 				};
 				googleMap = new google.maps.Map(document.getElementById("googleMap"),mapOptions);
 
@@ -109,7 +109,7 @@ $def with (session, zones_interdites)
 		       	dataType: "json",
 		       	success: function(data){
 		       		for (var i=0; i<data.length; i++){
-		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long)
+		       			var velo = new velov(data[i].velov_id,data[i].velov_lat,data[i].velov_long,data[i].inaccessibilty_report_nb)
 		       			velovsList.push(velo);
 		       			velo.showVelov();
 		       		}
@@ -202,7 +202,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		console.log(data);
 		       		if (data != "0"){
-		       			checkResponseVelov(data,velov_id,velov_lat,velov_long)
+		       			checkResponseVelov(data,velov_id,velov_lat,velov_long);
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -236,7 +236,7 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data != "0"){
-		       			checkResponseVelov(data,null,null,null);
+		       			checkResponseVelov(data,0,null,null);
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -254,7 +254,7 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data == "3"){
-						if (velov_id == null){
+						if (velov_id == 0){
 							jQuery('#takeOk').foundation('reveal', 'open');
 						}
 						else {
