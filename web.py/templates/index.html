@@ -17,6 +17,8 @@ $def with (session, zones_interdites)
 
 	<script type="text/javascript">
 
+		var timeEnd = 10000;
+
 		//Zones interdites
 		var idZone = null;
 		$for zone_interdite in zones_interdites:
@@ -124,10 +126,10 @@ $def with (session, zones_interdites)
 				else if ('$session.is_a_reservation_taking_place' == 'True'){
 					var now = new Date();
 					console.log(now.getTime());
-					console.log($session.reservation_starting_time*1000 + 300000);
-					if ($session.reservation_starting_time*1000 + 300000 > now.getTime()){
+					console.log($session.reservation_starting_time*1000 + timeEnd);
+					if ($session.reservation_starting_time*1000 + timeEnd > now.getTime()){
 						jQuery('#bookOk').foundation('reveal', 'open');
-						bookTimer($session.reservation_starting_time*1000 + 300000);
+						bookTimer($session.reservation_starting_time*1000 + timeEnd);
 					}
 				}
 		}
@@ -263,7 +265,7 @@ $def with (session, zones_interdites)
 			       			//TODO récupérer date de la fin de la réservation
 			       			time = new Date();
 			       			printAddress(velov_lat,velov_long);
-			       			bookTimer(time.getTime() + 300000);
+			       			bookTimer(time.getTime() + timeEnd);
 						}
 					}
 					else if (data == "4"){
@@ -280,8 +282,9 @@ $def with (session, zones_interdites)
 			now = new Date();
 			restTime = (time - now.getTime());
 			if (restTime < 0){
-				jQuery('#bookOk').foundation('reveal', 'close');
+				//jQuery('#bookOk').foundation('reveal', 'close');
 				jQuery('#bookEnd').foundation('reveal', 'open');
+				infowindowOpen.close();
 				//TODO : ajouter un blâme
 				bookCancel();
 			}
@@ -293,7 +296,7 @@ $def with (session, zones_interdites)
 				}
 				timeHTML = minutes + " min " + secondes + " sec";
 				document.getElementById("timeBookVelo").innerHTML = timeHTML;
-				setTimeout("bookTimer(time.getTime() + 300000)",1000);
+				setTimeout("bookTimer(time.getTime() + timeEnd)",1000);
 			}
 		}
 
@@ -304,7 +307,7 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data == "OK"){
-		       			jQuery('#bookOk').foundation('reveal', 'close');
+		       			//jQuery('#bookOk').foundation('reveal', 'close');
 		       		}
 				}
 			});
