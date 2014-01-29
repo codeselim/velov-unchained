@@ -61,7 +61,7 @@ $def with (session, zones_interdites)
 					var contentString = '<h6>Vélo n°'+this.velov_id+'</h6>'+
 					'<a onclick=bookEvent('+this.velov_id+','+this.velov_lat+','+this.velov_long+') class="button">Réserver</a>&nbsp'+
 					'<a onclick=takeEvent('+this.velov_id+') class="button">Prendre</a>'+
-					'<br/><a onclick=bikeInaccessible('+this.velov_id+') class="button alert small">Signaler innaccesible</a>';
+					'<br/><a onclick=bikeInaccessible('+this.velov_id+') class="button alert small">Signaler inaccessible</a>';
 					if (this.count_inaccessible > 0){
 						contentString = contentString + '<br/><p class="alert round label">Attention ce vélo a été signalé innaccesible '+this.count_inaccessible+' fois</p>';
 					}
