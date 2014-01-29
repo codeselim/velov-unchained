@@ -232,6 +232,7 @@ $def with (session, zones_interdites)
 
 		function takeEvent(velov_id){
 			infowindowOpen.close();
+			console.log("Taking velov of id", velov_id)
 			jQuery.ajax({
 				url: '/take',
 				type: 'POST',
@@ -240,6 +241,8 @@ $def with (session, zones_interdites)
 				success: function(data){
 					if (data != "0"){
 		       			checkResponseVelovTake(data,0,null,null);
+		       			// cancel reservation timeout
+		       			cancelBookTimer();
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -256,7 +259,7 @@ $def with (session, zones_interdites)
    				data: 'task_id=' + task_id,
 				dataType: "text",
 				success: function(data){
-					if (data == "3"){
+					if (data == "3"){// success case
 						jQuery('#bookOk').foundation('reveal', 'open');
 		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
 		       			//TODO récupérer date de la fin de la réservation
@@ -264,11 +267,13 @@ $def with (session, zones_interdites)
 		       			printAddress(velov_lat,velov_long);
 		       			bookTimer(time.getTime() + timeEnd);
 					}
-					else if (data == "4"){
+					else if (data == "4"){ // fail case
 						jQuery('#takeNo').foundation('reveal', 'open');
 					}
-					else {
-						setTimeout(checkResponseVelovBook(task_id),1000);
+					else { // "in progress" case
+						setTimeout(function () {
+							checkResponseVelovBook(task_id, velov_id, velov_lat, velov_long)
+						},1000);
 					}
 				}
 			});
@@ -295,6 +300,12 @@ $def with (session, zones_interdites)
 			});
 		}
 
+		var bookTimerTimeout;
+
+		function cancelBookTimer () {
+			clearTimeout(bookTimerTimeout);
+		}
+
 		function bookTimer(time) {
 			now = new Date();
 			restTime = (time - now.getTime());
@@ -313,7 +324,7 @@ $def with (session, zones_interdites)
 				}
 				timeHTML = minutes + " min " + secondes + " sec";
 				document.getElementById("timeBookVelo").innerHTML = timeHTML;
-				setTimeout("bookTimer(time.getTime() + timeEnd)",1000);
+				bookTimerTimeout = setTimeout("bookTimer(time.getTime() + timeEnd)",1000);
 			}
 		}
 

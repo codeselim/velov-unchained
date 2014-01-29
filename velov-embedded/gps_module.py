@@ -15,7 +15,7 @@ _timer = None
 _dx = None
 _dy = None
 _current_time_step = None
-_gps_current_pos = [0.0, 0.0]	# Lat, Long
+_gps_current_pos = [45.7728813, 4.87606287]	# Lat, Long
 _is_moving = False
 
 

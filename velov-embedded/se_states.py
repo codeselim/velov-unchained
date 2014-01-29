@@ -11,8 +11,8 @@ import gps_module
 
 # Délai pendant lequel le vélo reste débloquable.
 # C'est le temps qu'à l'utilisateur pour le récupérer
-UNLOCKABLE_DELAY	=	30.0		# En secondes
-RESERVED_DELAY		= 	5.			# En secondes
+UNLOCKABLE_DELAY	=	20.0		# En secondes
+RESERVED_DELAY		= 	20.			# En secondes
 #
 STLN_TIMES			=	(	5.*60.,
 							20.*60.,
