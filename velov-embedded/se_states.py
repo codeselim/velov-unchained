@@ -93,6 +93,7 @@ class SystemState:
 		# On lance le système anti-vol
 		if new_lock:
 			self._locked_time = time.time()
+			self._updateCurrentPos()
 			self._stln_start()
 		elif new_state == SystemState.Used or new_state == SystemState.Off:
 			self._stln_stop()
