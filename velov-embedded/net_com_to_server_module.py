@@ -51,6 +51,9 @@ class NetComToServerModule:
 	def getID(self):
 		return self._id
 
+	def setID(self, s_id):
+		self._id = s_id
+
 	def sendStatusChg(self, current_status):
 		data = "CHG " + str(self._id) + " " + self.getTimestamp() + " " + current_status
 		return self.sendData(data)

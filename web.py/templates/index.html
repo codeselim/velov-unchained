@@ -17,6 +17,8 @@ $def with (session, zones_interdites)
 
 	<script type="text/javascript">
 
+		var timeEnd = 10000;
+
 		//Zones interdites
 		var idZone = null;
 		$for zone_interdite in zones_interdites:
@@ -124,10 +126,10 @@ $def with (session, zones_interdites)
 				else if ('$session.is_a_reservation_taking_place' == 'True'){
 					var now = new Date();
 					console.log(now.getTime());
-					console.log($session.reservation_starting_time*1000 + 300000);
-					if ($session.reservation_starting_time*1000 + 300000 > now.getTime()){
+					console.log($session.reservation_starting_time*1000 + timeEnd);
+					if ($session.reservation_starting_time*1000 + timeEnd > now.getTime()){
 						jQuery('#bookOk').foundation('reveal', 'open');
-						bookTimer($session.reservation_starting_time*1000 + 300000);
+						bookTimer($session.reservation_starting_time*1000 + timeEnd);
 					}
 				}
 		}
@@ -202,7 +204,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		console.log(data);
 		       		if (data != "0"){
-		       			checkResponseVelov(data,velov_id,velov_lat,velov_long);
+		       			checkResponseVelovBook(data,velov_id,velov_lat,velov_long);
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -229,6 +231,7 @@ $def with (session, zones_interdites)
 		}
 
 		function takeEvent(velov_id){
+			infowindowOpen.close();
 			jQuery.ajax({
 				url: '/take',
 				type: 'POST',
@@ -236,7 +239,7 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data != "0"){
-		       			checkResponseVelov(data,0,null,null);
+		       			checkResponseVelovTake(data,0,null,null);
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -245,7 +248,7 @@ $def with (session, zones_interdites)
 			});
 		}
 
-		function checkResponseVelov(task_id,velov_id,velov_lat,velov_long){
+		function checkResponseVelovBook(task_id,velov_id,velov_lat,velov_long){
 			infowindowOpen.setContent('En cours');
 			jQuery.ajax({
    				url:'/checkResponseVelov',
@@ -254,23 +257,39 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data == "3"){
-						if (velov_id == 0){
-							jQuery('#takeOk').foundation('reveal', 'open');
-						}
-						else {
-							jQuery('#bookOk').foundation('reveal', 'open');
-			       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
-			       			//TODO récupérer date de la fin de la réservation
-			       			time = new Date();
-			       			printAddress(velov_lat,velov_long);
-			       			bookTimer(time.getTime() + 300000);
-						}
+						jQuery('#bookOk').foundation('reveal', 'open');
+		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
+		       			//TODO récupérer date de la fin de la réservation
+		       			time = new Date();
+		       			printAddress(velov_lat,velov_long);
+		       			bookTimer(time.getTime() + timeEnd);
 					}
 					else if (data == "4"){
 						jQuery('#takeNo').foundation('reveal', 'open');
 					}
 					else {
-						setTimeout(checkResponseVelov(task_id),1000);
+						setTimeout(checkResponseVelovBook(task_id),1000);
+					}
+				}
+			});
+		}
+
+		function checkResponseVelovTake(task_id){
+			infowindowOpen.setContent('En cours');
+			jQuery.ajax({
+   				url:'/checkResponseVelov',
+   				type: 'POST',
+   				data: 'task_id=' + task_id,
+				dataType: "text",
+				success: function(data){
+					if (data == "3"){
+						jQuery('#takeOk').foundation('reveal', 'open');
+					}
+					else if (data == "4"){
+						jQuery('#takeNo').foundation('reveal', 'open');
+					}
+					else {
+						setTimeout(checkResponseVelovTake(task_id),1000);
 					}
 				}
 			});
@@ -280,10 +299,11 @@ $def with (session, zones_interdites)
 			now = new Date();
 			restTime = (time - now.getTime());
 			if (restTime < 0){
-				jQuery('#bookOk').foundation('reveal', 'close');
+				//jQuery('#bookOk').foundation('reveal', 'close');
 				jQuery('#bookEnd').foundation('reveal', 'open');
+				infowindowOpen.close();
 				//TODO : ajouter un blâme
-				bookCancel();
+				//bookCancel();
 			}
 			else{
 				minutes = Math.floor(restTime / 60000);
@@ -293,7 +313,7 @@ $def with (session, zones_interdites)
 				}
 				timeHTML = minutes + " min " + secondes + " sec";
 				document.getElementById("timeBookVelo").innerHTML = timeHTML;
-				setTimeout("bookTimer(time.getTime() + 300000)",1000);
+				setTimeout("bookTimer(time.getTime() + timeEnd)",1000);
 			}
 		}
 
@@ -304,7 +324,7 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data == "OK"){
-		       			jQuery('#bookOk').foundation('reveal', 'close');
+		       			//jQuery('#bookOk').foundation('reveal', 'close');
 		       		}
 				}
 			});
@@ -365,7 +385,7 @@ $def with (session, zones_interdites)
 		<p class="lead">Il est situé <span id="addressVelo"></span></p>
 		<p class="lead">Il vous reste <span id="timeBookVelo"></span> pour prendre le vélo</p>
 		<span id="buttonTakeNow"></span>
-		<a class="alert button" onclick="bookCancel()">Annuler la réservation</a> 
+		<!--<a class="alert button" onclick="bookCancel()">Annuler la réservation</a> -->
 	</div>
 
 	<div id="bookEnd" class="reveal-modal" data-reveal>

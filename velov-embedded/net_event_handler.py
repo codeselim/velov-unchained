@@ -20,6 +20,8 @@ class NetworkEventHandler(EventHandlerInterface):
 			return False 
 		# On examine les différents cas
 		if words[0] == "CHG":
+			# On reprend l'ID
+			self._serv_com.setID(int(words[1]))
 			# Demande de changement d'état du SE
 			if len(words) != 5:
 				self._err_msg = "Message réseau de changement d'état invalide"
