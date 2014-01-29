@@ -9,12 +9,13 @@ class MsgType(object):
 	Enumeration représentant le type de message échangé.
 	Chaque type de message peut-être assimilé à une ligne d'interruption
 	'''
-	Quit = 'Quit'
-	Locker = 'Locker'
-	Button = 'Button'
-	Net = 'Net'
-	GpsLoc = 'GpsLoc'
-	Battery	= 'Battery'
+	Quit	 	= 'Quit'
+	Locker 		= 'Locker'
+	Button	 	= 'Button'
+	Net		 	= 'Net'
+	GpsLoc 		= 'GpsLoc'
+	Battery		= 'Battery'
+	State		= 'State'
 
 
 class Msg(object):

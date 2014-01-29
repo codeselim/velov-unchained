@@ -13,6 +13,7 @@ système embarqué
 from curses import ascii
 from threading import Thread
 from SocketServer import TCPServer, BaseRequestHandler
+from chg_cmd_interpreter import ChgCmdInterpreter
 
 from thread_base import ThreadBase
 from fifo_itc import FifoITC
@@ -98,6 +99,7 @@ class ThreadSim(ThreadBase):
 		self._interpreters["l"] = LockerCmdInterpreter()
 		self._interpreters["gl"] = GpsCmdInterpreter()
 		self._interpreters["be"] = BatteryCmdInterpreter()
+		self._interpreters["chg"] = ChgCmdInterpreter()
 		# On met en place le serveur réseau
 		NetworkServerHandler.fifo = fifo
 		self._server_thread = NetworkServerThread(SERVER_PORT, SERVER_HOST, NetworkServerHandler)
@@ -125,9 +127,21 @@ class ThreadSim(ThreadBase):
 				except:
 					self._writeLineOnScreen("Commande gm incorrecte")
 				continue
-			elif len(words) == 1 and words[0] == "gs":
-				gps_module.stopMovingBike()
-				continue
+			elif len(words) == 1:
+				if words[0] == "gs":
+					gps_module.stopMovingBike()
+					continue
+				elif words[0] == "help":
+					self._writeLineOnScreen("~~~~~ Liste des commandes ~~~~~~~")
+					self._writeLineOnScreen("b: boutton de dévérouillage")
+					self._writeLineOnScreen("l: demande de vérouillage du vélo")
+					self._writeLineOnScreen("gl: demande d'envoie de localisation")
+					self._writeLineOnScreen("gm <lat> <long>: demande de déplacement du vélo")
+					self._writeLineOnScreen("gs: stop le déplacement du vélo")
+					self._writeLineOnScreen("be: envoie d'alerte batterie vide")
+					self._writeLineOnScreen("chg <etat>: demande de changement d'état")
+					self._writeLineOnScreen("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+					continue
 			# Cas du GPS pour le simu
 			msg = self._build_msg(inp)
 			self._send_msg(msg)
