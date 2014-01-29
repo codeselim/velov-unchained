@@ -83,9 +83,9 @@ INSERT INTO velovs (id) VALUES (15);
 SELECT pg_catalog.setval('velovs_id_seq', 16, true);
 -- ---------------------------------------------- --------------------------------------
 
-INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 1, 1, 1390828731);
-INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, 1390828731);
-INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, 1390828731);
+-- INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 1, 1, 1390828731);
+-- INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, 1390828731);
+-- INSERT INTO velov_tasks (task_state_id , type, user_id, velov_id, action_time) VALUES (1, 1, 2, 2, 1390828731);
 
 -- ---------------------------------------
 
@@ -118,6 +118,6 @@ INSERT INTO velov_location_history(id, velov_id, time, tile_index,lat, long  ) V
 SELECT pg_catalog.setval('velov_location_history_id_seq', 9, true);
 -------------------------------------------------------------------------
 
-INSERT INTO user_renting_sessions(id, user_id, velov_id, time_start, time_end) VALUES (1, 2, 7, 1390901720, NULL); -- renting session still running
-INSERT INTO user_renting_sessions(id, user_id, velov_id, time_start, time_end) VALUES (2, 3, 6, 1390824631, 1390826631); -- renting session already ended
-SELECT pg_catalog.setval('user_renting_sessions_id_seq', 3, true);
+-- INSERT INTO user_renting_sessions(id, user_id, velov_id, time_start, time_end) VALUES (1, 2, 7, 1390901720, NULL); -- renting session still running
+-- INSERT INTO user_renting_sessions(id, user_id, velov_id, time_start, time_end) VALUES (2, 3, 6, 1390824631, 1390826631); -- renting session already ended
+-- SELECT pg_catalog.setval('user_renting_sessions_id_seq', 3, true);
