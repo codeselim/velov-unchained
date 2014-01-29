@@ -200,6 +200,7 @@ $def with (session, zones_interdites)
 		       	data: 'velo=' + velov_id,
 		       	dataType: "text",
 		       	success: function(data){
+		       		console.log(data);
 		       		if (data != "0"){
 		       			checkResponseVelov(data,velov_id,velov_lat,velov_long)
 		       		}
@@ -245,11 +246,11 @@ $def with (session, zones_interdites)
 		}
 
 		function checkResponseVelov(task_id,velov_id,velov_lat,velov_long){
-			infowindowOpen.setContent('<img src="static/img/load_img.gif" title="loading" />');
+			infowindowOpen.setContent('En cours');
 			jQuery.ajax({
    				url:'/checkResponseVelov',
    				type: 'POST',
-   				data: 'task=' + task_id,
+   				data: 'task_id=' + task_id,
 				dataType: "text",
 				success: function(data){
 					if (data == "3"){
