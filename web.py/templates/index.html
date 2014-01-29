@@ -204,7 +204,7 @@ $def with (session, zones_interdites)
 		       	success: function(data){
 		       		console.log(data);
 		       		if (data != "0"){
-		       			checkResponseVelov(data,velov_id,velov_lat,velov_long);
+		       			checkResponseVelovBook(data,velov_id,velov_lat,velov_long);
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -238,7 +238,7 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data != "0"){
-		       			checkResponseVelov(data,0,null,null);
+		       			checkResponseVelovTake(data,0,null,null);
 		       		}
 		       		else {
 		       			jQuery('#takeNo').foundation('reveal', 'open');
@@ -247,7 +247,7 @@ $def with (session, zones_interdites)
 			});
 		}
 
-		function checkResponseVelov(task_id,velov_id,velov_lat,velov_long){
+		function checkResponseVelovBook(task_id,velov_id,velov_lat,velov_long){
 			infowindowOpen.setContent('En cours');
 			jQuery.ajax({
    				url:'/checkResponseVelov',
@@ -256,23 +256,39 @@ $def with (session, zones_interdites)
 				dataType: "text",
 				success: function(data){
 					if (data == "3"){
-						if (velov_id == 0){
-							jQuery('#takeOk').foundation('reveal', 'open');
-						}
-						else {
-							jQuery('#bookOk').foundation('reveal', 'open');
-			       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
-			       			//TODO récupérer date de la fin de la réservation
-			       			time = new Date();
-			       			printAddress(velov_lat,velov_long);
-			       			bookTimer(time.getTime() + timeEnd);
-						}
+						jQuery('#bookOk').foundation('reveal', 'open');
+		       			jQuery('#buttonTakeNow').html('<a onclick="takeEvent('+velov_id+')" class="button">Prendre maintenant</a>');
+		       			//TODO récupérer date de la fin de la réservation
+		       			time = new Date();
+		       			printAddress(velov_lat,velov_long);
+		       			bookTimer(time.getTime() + timeEnd);
 					}
 					else if (data == "4"){
 						jQuery('#takeNo').foundation('reveal', 'open');
 					}
 					else {
-						setTimeout(checkResponseVelov(task_id),1000);
+						setTimeout(checkResponseVelovBook(task_id),1000);
+					}
+				}
+			});
+		}
+
+		function checkResponseVelovTake(task_id){
+			infowindowOpen.setContent('En cours');
+			jQuery.ajax({
+   				url:'/checkResponseVelov',
+   				type: 'POST',
+   				data: 'task_id=' + task_id,
+				dataType: "text",
+				success: function(data){
+					if (data == "3"){
+						jQuery('#takeOk').foundation('reveal', 'open');
+					}
+					else if (data == "4"){
+						jQuery('#takeNo').foundation('reveal', 'open');
+					}
+					else {
+						setTimeout(checkResponseVelovTake(task_id),1000);
 					}
 				}
 			});
