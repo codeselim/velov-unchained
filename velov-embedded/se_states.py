@@ -131,6 +131,7 @@ class SystemState:
 		Simule les LED
 		"""
 		led_st = None
+		self._print_func("ID : %d" % self._serv_com.getID())
 		self._print_func("Etat actuel : %s" % self._state)
 		# LED verte
 		if self._state == SystemState.Available:
