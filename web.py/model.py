@@ -36,9 +36,8 @@ def authenticate(variables):
 		else :
 			reservation_taking_place=False
 			reservation_start_time=0
-			print "inside else"
 		bike_in_use=False
-		if row.renting_session_end_time  == None :
+		if row.renting_session_end_time is None and row.renting_session_start_time is not None :
 			bike_in_use=True
 		else :
 			bike_in_use=False
@@ -164,9 +163,8 @@ def getSessionUpdates(variables):
 		else :
 			reservation_taking_place=False
 			reservation_start_time=0
-			print "inside else"
 		bike_in_use=False
-		if row.renting_session_end_time  == None :
+		if row.renting_session_end_time is None and row.renting_session_start_time is not None :
 			bike_in_use=True
 		else :
 			bike_in_use=False
@@ -174,6 +172,4 @@ def getSessionUpdates(variables):
 		return result
 	else :
 		return dict(login_validated=False, user_id=0,  user_login=0, firstname=0, lastname=0, email=0, tel_portable=0, velov_id=0, renting_session_start_time=0, renting_session_end_time=None, is_a_bike_in_use=False, is_a_reservation_taking_place=False, reservation_starting_time=0, last_captured_latitude=-1, last_captured_longitude=-1 )
-
-
 
