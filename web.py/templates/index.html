@@ -18,6 +18,7 @@ $def with (session, zones_interdites)
 	<script type="text/javascript">
 
 		var timeEnd = 10000;
+		var VELOV_UNLOCK_DELAY = 10000;
 
 		//Zones interdites
 		var idZone = null;
@@ -289,12 +290,18 @@ $def with (session, zones_interdites)
 				success: function(data){
 					if (data == "3"){
 						jQuery('#takeOk').foundation('reveal', 'open');
+						jQuery('#takeOk p').css("display", "block"); // Show the message about the time to unlock the device
+						setTimeout(function () {
+							jQuery('#takeOk p').css("display", "none"); // Hide the message about the time to unlock the device
+						}, VELOV_UNLOCK_DELAY)
 					}
 					else if (data == "4"){
 						jQuery('#takeNo').foundation('reveal', 'open');
 					}
 					else {
-						setTimeout(checkResponseVelovTake(task_id),1000);
+						setTimeout(function () {
+							checkResponseVelovTake(task_id)
+						},1000);
 					}
 				}
 			});
@@ -408,7 +415,7 @@ $def with (session, zones_interdites)
 
 	<div id="takeOk" class="reveal-modal" data-reveal>
 		<h2>Vous avez un vélo en cours d'utilisation</h2>
-		<p>Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
+		<p style="display:none">Attention, vous avez 30 secondes pour déverrouiller le vélo</p>
 		<a class="alert button" href="/logout">Déconnexion</a>
 	</div>
 
