@@ -36,6 +36,7 @@ class index:
 		if authentication.is_logged(session) :
 			print("the user is logged in")
 			authentication.update_session(session)
+			print session.__dict__
 			return render.index(session, zones_interdites)
 		else :
 			print("the user is not logged in")
