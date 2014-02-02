@@ -5,7 +5,7 @@ velov-unchained
 
 ### The webserver
 To run the web application you must run first the webserver.  
-You have to go the folder **./web.py** and run the following command:
+From the folder **./web.py** run the following command:
 
     > python controller.py
 
