@@ -18,5 +18,10 @@ The above command will run the webserver on the port 1234
  
 After running the webserver you can access the web application via `http://localhost:[port]`  
 
+### The warning management system
+To run the script updating the warning from the database  
+From the folder **./web.py** run the following command:
+
+	> python update_warnings.py
 
 
